@@ -8,6 +8,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// $api = "http://localhost:8000/api"; // ton backend Laravel --- IGNORE ---
+// $frontend = "http://localhost:5173"; // ton frontend React --- IGNORE --
+
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
     ->name('register');
