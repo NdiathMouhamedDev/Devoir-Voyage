@@ -1,211 +1,52 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    
-    // Effacer l'erreur pour ce champ
-    if (errors[e.target.name]) {
-      setErrors({
-        ...errors,
-        [e.target.name]: ''
-      });
-    }
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setErrors({});
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+      const res = await api.post("/login", form);
 
-      const data = await response.json();
+      // Sauvegarde du token
+      localStorage.setItem("token", res.data.token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
 
-      if (response.ok) {
-        console.log('Login successful:', data);
-        
-        // Sauvegarder le token
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Rediriger vers le dashboard
-        window.location.href = '/events';
-        
-      } else {
-        // Gérer les erreurs
-        if (response.status === 422 && data.errors) {
-          setErrors(data.errors);
-        } else {
-          setErrors({ general: data.message || 'Identifiants incorrects' });
-        }
-      }
-      
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrors({ general: 'Erreur de connexion au serveur' });
-    } finally {
-      setLoading(false);
+      // Redirection vers une autre page (ex: dashboard ou events)
+      navigate("/events");
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Erreur de connexion");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="flex justify-center">
-            <div className="bg-blue-600 p-3 rounded-full">
-              <LogIn className="h-8 w-8 text-white" />
-            </div>
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Connexion
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Accédez à votre compte
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-6">
-          {errors.general && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <div className="text-red-800">{errors.general}</div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Adresse email
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="votre@email.com"
-                />
-              </div>
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email[0]}</p>}
-            </div>
-
-            {/* Mot de passe */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Mot de passe
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full px-3 py-2 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Mot de passe"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
-              </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password[0]}</p>}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Se souvenir de moi
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <button 
-                onClick={() => alert('Fonctionnalité à venir')}
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Mot de passe oublié ?
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading || !formData.email || !formData.password}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <LogIn className="h-5 w-5 text-blue-500 group-hover:text-blue-400" />
-                )}
-              </span>
-              {loading ? 'Connexion...' : 'Se connecter'}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Pas encore de compte ?{' '}
-              <button 
-                onClick={() => window.location.href = '/register'}
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                S'inscrire
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Mot de passe"
+        value={form.password}
+        onChange={handleChange}
+      />
+      <button type="submit">Se connecter</button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </form>
   );
-};
-
-export default Login;
+}

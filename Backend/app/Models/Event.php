@@ -10,16 +10,17 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'description', 'location', 'starts_at', 'ends_at', 'user_id'
+        'title', 'description', 'location', 'start_at', 'end_at', 'user_id'
     ];
 
     protected $casts = [
-        'starts_at' => 'datetime',
-        'ends_at'   => 'datetime',
+        'start_at' => 'datetime',
+        'end_at'   => 'datetime',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class, 'event_users');
     }
+
 }

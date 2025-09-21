@@ -1,15 +1,16 @@
-// src/api.js
 import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api",
+  withCredentials: true, // pour CORS avec cookies
+
 });
 
-// Ajouter automatiquement le token
+// 🔑 Ajouter le token automatiquement si présent
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
-    config = config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

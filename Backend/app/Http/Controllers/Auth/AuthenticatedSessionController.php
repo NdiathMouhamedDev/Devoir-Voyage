@@ -1,79 +1,70 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
-class AuthenticatedSessionController extends Controller
+class AuthController extends Controller
 {
     /**
-     * Handle an incoming authentication request.
+     * Enregistrer un nouvel utilisateur
      */
-    public function store(LoginRequest $request): JsonResponse
+    public function register(Request $request)
     {
-        try {
-            $request->authenticate();
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
 
-            $user = Auth::user();
-            
-            // Créer un token avec Sanctum
-            $token = $user->createToken('auth_token')->plainTextToken;
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => bcrypt($validated['password']),
+        ]);
 
-            return response()->json([
-                'message' => 'Login successful',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'email_verified_at' => $user->email_verified_at,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ]
-            ]);
-            
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'The provided credentials are incorrect.',
-                'errors' => $e->errors()
-            ], 422);
-            
-        } catch (\Exception $e) {
-            Log::error('Login error: ' . $e->getMessage());
-            
-            return response()->json([
-                'message' => 'An error occurred during login',
-                'error' => 'Internal server error'
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user'    => $user
+        ], 201);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Connexion et génération du token
      */
-    public function destroy(Request $request): JsonResponse
+    public function login(Request $request)
     {
-        try {
-            // Supprimer le token actuel
-            $request->user()->currentAccessToken()->delete();
+        $validated = $request->validate([
+            'email'    => 'required|string|email',
+            'password' => 'required|string',
+        ]);
 
-            return response()->json([
-                'message' => 'Logged out successfully'
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Logout error: ' . $e->getMessage());
-            
-            return response()->json([
-                'message' => 'Logout successful'
-            ]); // Retourner succès même en cas d'erreur pour éviter les blocages côté client
+        $user = User::where('email', $validated['email'])->first();
+
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        // 🔑 Création du token Sanctum
+        $token = $user->createToken('API Token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'token'   => $token,
+            'user'    => $user
+        ]);
+    }
+
+    /**
+     * Déconnexion (suppression du token)
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }
