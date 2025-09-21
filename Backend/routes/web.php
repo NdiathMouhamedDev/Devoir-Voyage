@@ -2,19 +2,13 @@
 // routes/web.php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\VerifyEmailController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Route pour la vérification d'email (accessible depuis un navigateur)
-// Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-//     ->middleware(['signed'])
-//     ->name('verification.verify');
+// Supprimer la route de vérification d'email d'ici
+// car elle est maintenant dans routes/api.php
 
-// Si vous avez des routes d'authentification web, assurez-vous qu'elles n'interfèrent pas
-// Commentez ou supprimez les routes qui causent des conflits
-
-// Route::get('/login', ...); // Cette route peut causer le problème
-// Route::post('/login', ...);
+// Si vous avez besoin d'autres routes web, ajoutez-les ici
+// mais évitez les conflits avec les routes API

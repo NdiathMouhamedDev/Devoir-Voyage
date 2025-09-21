@@ -5,21 +5,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 
 // Routes d'authentification
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
 // Routes de vérification d'email
-Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-    ->middleware(['auth:sanctum', 'signed'])
-    ->name('verification.verify');
+// Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
+//     ->middleware(['auth:sanctum', 'signed'])
+//     ->name('verification.verify');
 
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-    ->middleware(['auth:sanctum', 'throttle:6,1'])
-    ->name('verification.send');
+// Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+//     ->middleware(['auth:sanctum', 'throttle:6,1'])
+//     ->name('verification.send');
 
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {

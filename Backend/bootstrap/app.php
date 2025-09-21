@@ -11,7 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+
+    
+
     ->withMiddleware(function (Middleware $middleware) {
+
+         // Middleware globaux
+        $middleware->append([
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+
         // Middleware API - SANS EnsureFrontendRequestsAreStateful pour éviter les problèmes
         $middleware->api(prepend: [
             // Ne pas ajouter EnsureFrontendRequestsAreStateful ici
