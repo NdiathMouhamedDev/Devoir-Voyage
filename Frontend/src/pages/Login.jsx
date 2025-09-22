@@ -23,7 +23,7 @@ export default function Login() {
       localStorage.setItem("user_id", user.id);
 
       console.log("Connexion réussie:", user);
-      navigate("/events")
+      navigate("/dashboard");
     } catch (err) {
       console.error("Erreur de connexion", err);
     }

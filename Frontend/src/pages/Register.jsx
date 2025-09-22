@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import api from '../api';
 
 export default function Register () {
   const [formData, setFormData] = useState({
@@ -36,14 +37,8 @@ export default function Register () {
     setSuccess(false);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await api.post('/register', formData);
+
 
       const data = await response.json();
 

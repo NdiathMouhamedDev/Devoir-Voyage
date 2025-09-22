@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api";
+import { createEvent } from "../services/functions";
 
 export default function RegisterEvent() {
   const [form, setForm] = useState({
@@ -16,15 +16,10 @@ export default function RegisterEvent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await api.post("/events", form);
-      
-      alert("✅ Événement créé !");
-      console.log(res.data);
-    } catch (err) {
-      console.error("❌ Erreur:", err.response?.data || err.message);
-    }
+    const data = await createEvent(form);
+    console.log(data);
   };
+
 
   return (
     <form onSubmit={handleSubmit}>

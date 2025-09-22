@@ -1,0 +1,59 @@
+import api from "../api";
+
+// 📌 Récupérer tous les événements
+export async function recupEvents() {
+  try {
+    const res = await api.get("/events");
+    const response = res.data;
+    return response.data;
+  } catch (err) {
+    console.error("❌ Erreur recupEvents:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+// 📌 Récupérer un seul événement par ID
+export async function recupEventById(id) {
+  try {
+    const res = await api.get(`/events/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Erreur recupEventById:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+// 📌 Créer un événement
+export async function createEvent(eventData) {
+  try {
+    const res = await api.post("/events", eventData);
+    const response = res.data;
+    return response.data;
+  } catch (err) {
+    console.error("❌ Erreur createEvent:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+// 📌 Mettre à jour un événement
+export async function updateEvent(id, eventData) {
+  try {
+    const res = await api.put(`/events/${id}`, eventData);
+    const response = res.data;
+    return response.data;
+  } catch (err) {
+    console.error("❌ Erreur updateEvent:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+// 📌 Supprimer un événement
+export async function deleteEvent(id) {
+  try {
+    await api.delete(`/events/${id}`);
+    return { success: true };
+  } catch (err) {
+    console.error("❌ Erreur deleteEvent:", err.response?.data || err.message);
+    throw err;
+  }
+}
