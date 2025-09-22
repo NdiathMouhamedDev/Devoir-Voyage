@@ -6,13 +6,11 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-
-
 class EventController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $user = auth()->user(); // ✅ récupère l'utilisateur connecté
+        $user = auth()->user();
 
         if (!$user) {
             return response()->json(['error' => 'Utilisateur non authentifié'], 401);
@@ -24,20 +22,23 @@ class EventController extends Controller
             'location'    => $request->location,
             'start_at'    => $request->start_at,
             'end_at'      => $request->end_at,
-            'user_id'     => $request->user()->id, // ✅ Laravel met l’ID automatiquement
+            'user_id'     => $user->id,
         ]);
 
-        return response()->json($event);
+        return response()->json([
+            'message' => 'Event created successfully',
+            'data'    => $event
+        ], 201);
     }
 
-        public function index(): JsonResponse
+    public function index(): JsonResponse
     {
         $events = Event::all();
         
         return response()->json([
             'message' => 'Events retrieved successfully',
-            'data' => $events,
-            'total' => $events->count()
+            'data'    => $events,
+            'total'   => $events->count()
         ]);
     }
 
@@ -45,7 +46,7 @@ class EventController extends Controller
     {
         return response()->json([
             'message' => 'Event retrieved successfully',
-            'data' => $event
+            'data'    => $event
         ]);
     }
 
@@ -63,7 +64,7 @@ class EventController extends Controller
 
         return response()->json([
             'message' => 'Event updated successfully',
-            'data' => $event
+            'data'    => $event
         ]);
     }
 
@@ -73,7 +74,6 @@ class EventController extends Controller
 
         return response()->json([
             'message' => 'Event deleted successfully'
-        ], 200);
+        ]);
     }
-
 }
