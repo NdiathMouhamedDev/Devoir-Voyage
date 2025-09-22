@@ -26,13 +26,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Events (protégés par Sanctum)
 // -------------------------
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('events', EventController::class);
+    Route::apiResource('events', EventController::class); //crée auto les link crud
+});
 
-    // Route::get('/events', [EventController::class, 'index']);   // liste des events
-    // Route::post('/events', [EventController::class, 'store']);  // créer un event
-    // Route::get('/events/{id}', [EventController::class, 'show']); // voir un event
-    // Route::put('/events/{id}', [EventController::class, 'update']); // maj event
-    // Route::delete('/events/{id}', [EventController::class, 'destroy']); // suppr event
+
+//-------------------------------- 
+// Events interesting
+// -------------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/events/{event}/interested', [EventController::class, 'interested']);
+    Route::delete('/events/{event}/interested', [EventController::class, 'uninterested']);
 });
 
 

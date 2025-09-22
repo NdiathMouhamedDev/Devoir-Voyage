@@ -13,6 +13,9 @@ class EventController extends Controller
         $user = auth()->user();
 
         if (!$user) {
+            if ($user->role !== 'admin' && $user->id !== $event->user_id) {
+                return response()->json(['error' => 'Accès refusé'], 403);
+            }
             return response()->json(['error' => 'Utilisateur non authentifié'], 401);
         }
 
@@ -70,10 +73,41 @@ class EventController extends Controller
 
     public function destroy(Event $event): JsonResponse
     {
+        $user = auth()->user();
+
+        if ($user->role !== 'admin' && $user->id !== $event->user_id) {
+            return response()->json(['error' => 'Accès refusé'], 403);
+        }
+
         $event->delete();
 
         return response()->json([
             'message' => 'Event deleted successfully'
         ]);
     }
+
+    public function interested(Event $event)
+    {
+        $user = auth()->user();
+
+        $user->interestedEvents()->syncWithoutDetaching([$event->id]);
+
+        return response()->json([
+            'message' => 'Vous vous êtes intéressé à cet événement',
+            'event' => $event
+        ]);
+    }
+
+    public function uninterested(Event $event)
+    {
+        $user = auth()->user();
+
+        $user->interestedEvents()->detach($event->id);
+
+        return response()->json([
+            'message' => 'Vous n’êtes plus intéressé par cet événement',
+            'event' => $event
+        ]);
+    }
+
 }
