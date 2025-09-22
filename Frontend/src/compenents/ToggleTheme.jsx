@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
+import "../App.css"
+import jQuery from "jquery";
+
+const $ = jQuery;
 
 function toggleTheme(theme) {
     if (theme === "dark") {
-        document.documentElement.setAttribute("data-theme", "dark");
+        $("html").attr("data-theme", "dark");
         localStorage.setItem("theme", "dark");
     } else {
-        document.documentElement.setAttribute("data-theme", "light");
+        $("html").attr("data-theme", "light");
         localStorage.setItem("theme", "light");
     }
 }
@@ -26,7 +30,7 @@ export default function ToggleTheme({className=""}) {
     }, [isDark]);
 
     return (
-        <label style={{position:"relative", zIndex:"1",top:"-3rem", right:"-20rem", alignItems:"center", padding:".2rem"}} className={`flex cursor-pointer gap-2 bg-base-300 rounded-full shadow-md ${className}`}>
+        <label style={{position:"fixed", zIndex:"1",bottom:"2rem", right:"2rem", alignItems:"center", padding:".2rem"}} className={`flex max-w-25 cursor-pointer gap-2 bg-base-300 rounded-full shadow-md ${className}`}>
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
