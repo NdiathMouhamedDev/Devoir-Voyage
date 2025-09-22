@@ -18,6 +18,7 @@ export default function RegisterEvent() {
     e.preventDefault();
     try {
       const res = await api.post("/events", form);
+      
       alert("✅ Événement créé !");
       console.log(res.data);
     } catch (err) {

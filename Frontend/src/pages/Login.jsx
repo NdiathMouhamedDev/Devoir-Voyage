@@ -13,19 +13,19 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     try {
       const res = await api.post("/login", form);
 
-      // Sauvegarde du token
-      localStorage.setItem("token", res.data.token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+      const { token, user } = res.data;
 
-      // Redirection vers une autre page (ex: dashboard ou events)
-      navigate("/events");
+      // ✅ Sauvegarder token + id
+      localStorage.setItem("token", token);
+      localStorage.setItem("user_id", user.id);
 
+      console.log("Connexion réussie:", user);
+      navigate("/events")
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur de connexion");
+      console.error("Erreur de connexion", err);
     }
   };
 

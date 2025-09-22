@@ -10,25 +10,24 @@ use Illuminate\Http\JsonResponse;
 
 class EventController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'start_at'    => 'required|date',
-            'end_at'      => 'required|date|after:start_at',
-            'location'    => 'nullable|string',
-        ]);
+        $user = auth()->user(); // ✅ récupère l'utilisateur connecté
+
+        if (!$user) {
+            return response()->json(['error' => 'Utilisateur non authentifié'], 401);
+        }
 
         $event = Event::create([
-            ...$validatedData,
-            'user_id' => $request->user()->id, // ✅ user connecté
+            'title'       => $request->title,
+            'description' => $request->description,
+            'location'    => $request->location,
+            'start_at'    => $request->start_at,
+            'end_at'      => $request->end_at,
+            'user_id'     => $request->user()->id, // ✅ Laravel met l’ID automatiquement
         ]);
 
-        return response()->json([
-            'message' => 'Event created successfully',
-            'data'    => $event
-        ], 201);
+        return response()->json($event);
     }
 
         public function index(): JsonResponse
