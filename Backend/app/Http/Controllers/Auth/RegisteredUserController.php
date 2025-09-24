@@ -26,16 +26,20 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'email_verified_at' => now(), // Marquer directement comme vérifié
+            // SUPPRIMÉ: 'email_verified_at' => now(), // ❌ Ceci empêche la vérification !
         ]);
+
+        // Envoyer l'email de vérification
+        $user->sendEmailVerificationNotification();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'User registered successfully',
+            'message' => 'User registered successfully. Please check your email to verify your account.',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
+            'user' => $user,
+            'email_verified' => false // Indiquer que l'email n'est pas encore vérifié
         ], 201);
     }
 }

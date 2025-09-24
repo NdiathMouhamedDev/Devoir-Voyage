@@ -33,10 +33,19 @@ class AppServiceProvider extends ServiceProvider
 
         // Ou personnaliser complètement l'email de vérification
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
-            return (new MailMessage)
-                ->subject('Verify Email Address')
-                ->line('Click the button below to verify your email address.')
-                ->action('Verify Email Address', $url);
+        // Découper l’URL Laravel pour récupérer id et hash
+        $parsedUrl = parse_url($url);
+        $path = explode('/', $parsedUrl['path']);
+        $id = $path[count($path) - 2];
+        $hash = $path[count($path) - 1];
+
+        // Rediriger vers le frontend au lieu du backend
+        $frontendUrl = "http://localhost:5173/verify-email?id={$id}&hash={$hash}";
+
+        return (new MailMessage)
+            ->subject('Vérifiez votre adresse email')
+            ->line('Cliquez sur le bouton ci-dessous pour vérifier votre adresse email.')
+            ->action('Vérifier mon email', $frontendUrl);
         });
     }
 }

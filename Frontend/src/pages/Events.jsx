@@ -1,14 +1,13 @@
-import { useEffect, useState, useContext } from "react";
 import RegisterEvent from "../layouts/RegisterEvent";
+import VerifyEmail from "../compenents/miniCompenents/VerifyEmail";
 
 export default function Events() {
-  
 
   return(
     <div>
       <h1>Events</h1>
-       {/* <p>{message}</p> */}
        <RegisterEvent />
+       <VerifyEmail />
     </div>
   );
 }

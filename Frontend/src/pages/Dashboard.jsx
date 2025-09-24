@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   recupEvents,
   createEvent,
@@ -8,6 +9,8 @@ import {
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     id: null,
     title: "",
@@ -65,6 +68,20 @@ export default function Dashboard() {
       loadEvents();
     }
   };
+    
+    useEffect(() => {
+        const verified = searchParams.get('verified');
+        
+        if (verified === 'success') {
+            // Afficher message de succès
+            alert('Email vérifié avec succès !');
+            // Nettoyer l'URL
+            window.history.replaceState({}, '', '/dashboard');
+        } else if (verified === 'already') {
+            alert('Email déjà vérifié');
+            window.history.replaceState({}, '', '/dashboard');
+        }
+    }, [searchParams]);
 
   return (
     <div>
