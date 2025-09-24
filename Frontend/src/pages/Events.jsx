@@ -5,9 +5,8 @@ export default function Events() {
 
   return(
     <div>
-      <h1>Events</h1>
-       <RegisterEvent />
-       <VerifyEmail />
+      <h1 className="">Events</h1>
+
     </div>
   );
 }

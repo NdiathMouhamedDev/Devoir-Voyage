@@ -68,20 +68,47 @@ export default function Dashboard() {
       loadEvents();
     }
   };
-    
-    useEffect(() => {
-        const verified = searchParams.get('verified');
-        
-        if (verified === 'success') {
-            // Afficher message de succès
-            alert('Email vérifié avec succès !');
-            // Nettoyer l'URL
-            window.history.replaceState({}, '', '/dashboard');
-        } else if (verified === 'already') {
-            alert('Email déjà vérifié');
-            window.history.replaceState({}, '', '/dashboard');
-        }
-    }, [searchParams]);
+
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/dashboard/access-check', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setAccessGranted(true);
+        setUserInfo(response.data);
+      } catch (error) {
+        console.error('Access denied:', error.response?.data);
+        setAccessGranted(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAccess();
+  }, []);
+
+  if (loading) {
+    return <div>Vérification des accès...</div>;
+  }
+
+  if (!accessGranted) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <h2>🚫 Accès Refusé</h2>
+        <p>Seuls les administrateurs peuvent accéder au dashboard.</p>
+        <button onClick={() => window.location.href = '/'}>
+          Retour à l'accueil
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>

@@ -24,34 +24,71 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Route pour vérifier les rôles admin
+Route::middleware('auth:sanctum')->get('/user/role', function (Request $request) {
+    return response()->json([
+        'user' => $request->user(),
+        'is_admin' => $request->user()->isAdmin(),
+        'role' => $request->user()->role,
+        'can_access_dashboard' => $request->user()->isAdmin()
+    ]);
+});
+
+// Route de vérification d'accès dashboard
+Route::middleware('auth:sanctum')->get('/dashboard/access-check', function (Request $request) {
+    if (!$request->user()->isAdmin()) {
+        return response()->json([
+            'message' => 'Access denied to dashboard',
+            'reason' => 'Admin role required',
+            'user_role' => $request->user()->role,
+            'redirect_to' => '/unauthorized'
+        ], 403);
+    }
+    
+    return response()->json([
+        'message' => 'Dashboard access granted',
+        'user' => $request->user()->name,
+        'role' => $request->user()->role
+    ]);
+});
+
 // -------------------------
-// Events (protégés par Sanctum)
+// Events (protégés par Sanctum ET Admin seulement)
 // -------------------------
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('events', EventController::class); //crée auto les link crud
 });
 
 //-------------------------------- 
-// Events interesting
+// Events interesting (Admin seulement)
 // -------------------------------
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/events/{event}/interested', [EventController::class, 'interested']);
     Route::delete('/events/{event}/interested', [EventController::class, 'uninterested']);
 });
 
+// -------------------------
+// Routes Dashboard Admin
+// -------------------------
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/dashboard/stats', function (Request $request) {
+        return response()->json([
+            'message' => 'Welcome to admin dashboard!',
+            'admin_user' => $request->user()->name,
+            'total_users' => \App\Models\User::count(),
+            'total_events' => \App\Models\Event::count() ?? 0
+        ]);
+    });
+    
+    Route::get('/dashboard/users', function (Request $request) {
+        return response()->json([
+            'users' => \App\Models\User::select('id', 'name', 'email', 'role', 'created_at')->get()
+        ]);
+    });
+});
+
 // ---------------------------------
-// Routes de vérification d'email - VERSION CONTRÔLEUR
+// Routes de vérification d'email - DÉSACTIVÉES
 // --------------------------------
 
-// Route avec contrôleur dédié
-Route::get('/verify-email/{id}/{hash}', [App\Http\Controllers\Auth\VerifyEmailController::class, '__invoke'])
-    ->name('verification.verify');
-
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-    ->middleware(['auth:sanctum', 'throttle:6,1'])
-    ->name('verification.send');
-
-// Route pour la page de vérification d'email (si nécessaire)
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
+// Toutes les routes de vérification d'email sont supprimées pour l'instant
