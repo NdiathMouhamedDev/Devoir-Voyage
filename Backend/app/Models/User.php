@@ -17,6 +17,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
+        'admin_request_status',
+        'admin_requested_at',
+        'admin_approved_at',
+        'admin_verification_token',
     ];
 
     public function isAdmin()
@@ -27,12 +32,15 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'admin_verification_token', // Cacher le token
     ];
 
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'admin_requested_at' => 'datetime',
+            'admin_approved_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -42,4 +50,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Event::class, 'event_users');
     }
 
+    /**
+     * Override pour forcer la mise à jour
+     */
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+        ])->save();
+    }
 }
