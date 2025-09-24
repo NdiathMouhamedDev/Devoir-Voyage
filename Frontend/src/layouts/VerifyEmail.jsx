@@ -11,7 +11,7 @@ export default function VerifyEmail() {
   // Vérifier si l'utilisateur est connecté
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem("user_id");
 
     if (!token || !user) {
       navigate("/login");
