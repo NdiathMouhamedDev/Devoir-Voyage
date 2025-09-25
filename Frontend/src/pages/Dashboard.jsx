@@ -2,6 +2,7 @@
 import React from 'react';
 import { useAuth } from '../layouts/UseAuth';
 import RegisterEvent from '../layouts/RegisterEvent';
+import AvatarMenu from '../components/AvatarMenu';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout,  } = useAuth();
@@ -120,20 +121,22 @@ const Dashboard = () => {
                         Bienvenue <strong>{user.name}</strong> !
                     </p>
                 </div>
-                
-                <button 
-                    onClick={logout}
-                    style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#ef4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.375rem',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Se déconnecter
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <AvatarMenu />
+                    <button 
+                        onClick={logout}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Se déconnecter
+                    </button>
+                </div>
             </div>
 
             {/* Contenu principal */}

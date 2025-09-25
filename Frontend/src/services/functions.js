@@ -18,7 +18,9 @@ export async function recupEvents() {
 export async function recupEventById(id) {
   try {
     const res = await api.get(`/events/${id}`);
-    return res.data;
+    // Le backend renvoie { message, data: { ...event } }
+    // On retourne directement l'objet événement
+    return res.data.data;
   } catch (err) {
     console.error("❌ Erreur recupEventById:", err.response?.data || err.message);
     throw err;

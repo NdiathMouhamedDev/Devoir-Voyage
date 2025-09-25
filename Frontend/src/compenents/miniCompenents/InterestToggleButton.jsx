@@ -8,6 +8,8 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
 
   // Vérifier l'état initial d'intérêt au chargement
   useEffect(() => {
+    // Ne rien faire tant que l'ID de l'événement n'est pas disponible
+    if (!eventId) return;
     const checkInterestStatus = async () => {
       try {
         const response = await api.get(`/events/${eventId}/interest-status`);
@@ -22,6 +24,10 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
   }, [eventId]);
 
   const handleToggleInterest = async () => {
+    if (!eventId) {
+      console.warn("Aucun eventId fourni au bouton d'intérêt, action ignorée.");
+      return;
+    }
     if (!localStorage.getItem('token')) {
       alert("Vous devez être connecté pour marquer votre intérêt");
       window.location.href = '/login';

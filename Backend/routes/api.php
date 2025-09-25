@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventInterestController;
+use App\Http\Controllers\ProfileController;
 
 
 // -------------------------
@@ -92,4 +93,15 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 // Routes de vérification d'email - DÉSACTIVÉES
 // --------------------------------
 
-// Toutes les routes de vérification d'email sont supprimées pour l'instant
+// // Routes de vérification d'email sont supprimées pour l'instant
+
+// -------------------------
+// Routes Profile
+// -------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('/profile/interested-events', [ProfileController::class, 'interestedEvents'])->name('profile.interested-events');
+    Route::get('/profile/{id}', [ProfileController::class, 'publicProfil'])->whereNumber('id')->name('profile.public');
+});

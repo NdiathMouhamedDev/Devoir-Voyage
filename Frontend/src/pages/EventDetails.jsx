@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import CategoryBadge from '../components/CategoryBadge';
 import InterestToggleButton from '../compenents/miniCompenents/InterestToggleButton';
 import { recupEventById } from '../services/functions';
+import AvatarMenu from '../components/AvatarMenu';
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -32,9 +33,12 @@ export default function EventDetails() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Link to="/events" className="btn btn-outline mb-6">
-        ← Retour aux événements
-      </Link>
+      <div className="flex justify-between items-center mb-6">
+        <Link to="/events" className="btn btn-outline">
+          ← Retour aux événements
+        </Link>
+        <AvatarMenu />
+      </div>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-64 md:h-96">

@@ -45,10 +45,6 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         ];
     }
 
-    public function interestedEvents()
-    {
-        return $this->belongsToMany(Event::class, 'event_users');
-    }
 
     /**
      * Override pour forcer la mise à jour
@@ -59,4 +55,11 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
             'email_verified_at' => $this->freshTimestamp(),
         ])->save();
     }
+
+    public function interestedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'event_user', 'user_id', 'event_id')
+                    ->withTimestamps();
+    }
+
 }

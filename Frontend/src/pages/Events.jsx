@@ -1,10 +1,14 @@
 import LoadEvents from "../layouts/LoadEvents"
+import AvatarMenu from "../components/AvatarMenu";
 
 export default function Events() {
 
   return(
     <div>
-      <h1 className="">Events</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="">Events</h1>
+        <AvatarMenu />
+      </div>
       <LoadEvents />
     </div>
   );
