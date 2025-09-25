@@ -4,6 +4,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
+import VerifyEmail from "./layouts/VerifyEmail";
+import AdminVerificationDebug from "./pages/AdminVerificationDebug";
 
 
 export default function App() {
@@ -15,6 +17,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/Events" element={<Events />} />
         <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/debug" element={<AdminVerificationDebug />} />
       </Routes>
     </BrowserRouter>
   );

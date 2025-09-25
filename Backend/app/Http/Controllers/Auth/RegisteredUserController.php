@@ -26,7 +26,8 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'email_verified_at' => now(), // Marquer directement comme vérifié
+            'email_verified_at' => now(), // ✅ Marquer directement comme vérifié
+            'role' => 'user' // ✅ Rôle par défaut
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;

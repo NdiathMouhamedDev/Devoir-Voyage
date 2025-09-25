@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EventInterestController;
+
 
 // -------------------------
 // Auth routes
@@ -22,20 +24,71 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Route pour vérifier les rôles admin
+Route::middleware('auth:sanctum')->get('/user/role', function (Request $request) {
+    return response()->json([
+        'user' => $request->user(),
+        'is_admin' => $request->user()->isAdmin(),
+        'role' => $request->user()->role,
+        'can_access_dashboard' => $request->user()->isAdmin()
+    ]);
+});
+
+// Route de vérification d'accès dashboard
+Route::middleware('auth:sanctum')->get('/dashboard/access-check', function (Request $request) {
+    if (!$request->user()->isAdmin()) {
+        return response()->json([
+            'message' => 'Access denied to dashboard',
+            'reason' => 'Admin role required',
+            'user_role' => $request->user()->role,
+            'redirect_to' => '/unauthorized'
+        ], 403);
+    }
+    
+    return response()->json([
+        'message' => 'Dashboard access granted',
+        'user' => $request->user()->name,
+        'role' => $request->user()->role
+    ]);
+});
+
 // -------------------------
-// Events (protégés par Sanctum)
+// Events (protégés par Sanctum seulement)
 // -------------------------
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum',])->group(function () {
     Route::apiResource('events', EventController::class); //crée auto les link crud
 });
 
-
 //-------------------------------- 
-// Events interesting
+// Events interesting 
 // -------------------------------
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/events/{event}/interested', [EventController::class, 'interested']);
-    Route::delete('/events/{event}/interested', [EventController::class, 'uninterested']);
+    Route::post('/events/{event}/interested', [EventInterestController::class, 'store']);
+    Route::delete('/events/{event}/interested', [EventInterestController::class, 'destroy']);
 });
 
+// -------------------------
+// Routes Dashboard Admin
+// -------------------------
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/dashboard/stats', function (Request $request) {
+        return response()->json([
+            'message' => 'Welcome to admin dashboard!',
+            'admin_user' => $request->user()->name,
+            'total_users' => \App\Models\User::count(),
+            'total_events' => \App\Models\Event::count() ?? 0
+        ]);
+    });
+    
+    Route::get('/dashboard/users', function (Request $request) {
+        return response()->json([
+            'users' => \App\Models\User::select('id', 'name', 'email', 'role', 'created_at')->get()
+        ]);
+    });
+});
 
+// ---------------------------------
+// Routes de vérification d'email - DÉSACTIVÉES
+// --------------------------------
+
+// Toutes les routes de vérification d'email sont supprimées pour l'instant

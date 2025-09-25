@@ -1,14 +1,11 @@
-import { useEffect, useState, useContext } from "react";
-import RegisterEvent from "../layouts/RegisterEvent";
+import LoadEvents from "../layouts/LoadEvents"
 
 export default function Events() {
-  
 
   return(
     <div>
-      <h1>Events</h1>
-       {/* <p>{message}</p> */}
-       <RegisterEvent />
+      <h1 className="">Events</h1>
+      <LoadEvents />
     </div>
   );
 }
