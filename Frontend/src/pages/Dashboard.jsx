@@ -1,6 +1,7 @@
 // Dashboard.jsx avec useAuth
 import React from 'react';
 import { useAuth } from '../layouts/UseAuth';
+import RegisterEvent from '../layouts/RegisterEvent';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout,  } = useAuth();
@@ -189,7 +190,7 @@ const Dashboard = () => {
                 }}>
                     <h3 style={{ marginTop: 0 }}>📅 Événements</h3>
                     <p>Créez et gérez les événements</p>
-                    <button style={{ 
+                    <button  style={{ 
                         padding: '0.5rem 1rem', 
                         backgroundColor: '#f59e0b', 
                         color: 'white', 
@@ -200,6 +201,7 @@ const Dashboard = () => {
                         Gérer les événements
                     </button>
                 </div>
+                <RegisterEvent />
             </div>
 
             {/* Section debug */}

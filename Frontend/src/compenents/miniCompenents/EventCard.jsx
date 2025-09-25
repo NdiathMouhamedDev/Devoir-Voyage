@@ -32,12 +32,9 @@ export default function EventCard({
             <div className="badge badge-outline">{event.date}</div>
             
             {/* ✅ Bouton toggle corrigé */}
-            <InterestToggleButton 
-              event={event} 
-              onToggle={(id, isInterested, count) => {
-                console.log(`Event ${id} → intéressé: ${isInterested}, total: ${count}`);
-              }}
-            />
+            <InterestToggleButton eventId={event.id} 
+  initialInterested={event.is_interested} 
+  initialCount={event.interested_count}/>
           </div>
         </div>
       </div>

@@ -65,6 +65,7 @@ Route::middleware(['auth:sanctum',])->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/events/{event}/interested', [EventInterestController::class, 'store']);
     Route::delete('/events/{event}/interested', [EventInterestController::class, 'destroy']);
+    Route::get('/events/{event}/interest-status', [EventInterestController::class, 'status']);
 });
 
 // -------------------------

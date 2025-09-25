@@ -1,119 +1,79 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import api from "../../api";
 
-
-const InterestToggleButton = ({ event, onToggle, className = '', size = 'medium' }) => {
-  const [isInterested, setIsInterested] = useState(event.is_user_interested || false);
-  const [interestedCount, setInterestedCount] = useState(event.interested_count || 0);
+export default function InterestToggleButton({ eventId, initialInterested = false, initialCount = 0 }) {
+  const [isInterested, setIsInterested] = useState(initialInterested);
+  const [interestedCount, setInterestedCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
 
+  // Vérifier l'état initial d'intérêt au chargement
+  useEffect(() => {
+    const checkInterestStatus = async () => {
+      try {
+        const response = await api.get(`/events/${eventId}/interest-status`);
+        setIsInterested(response.data.is_interested);
+        setInterestedCount(response.data.interested_count);
+      } catch (error) {
+        console.error("Erreur lors de la vérification du statut:", error);
+      }
+    };
+    
+    checkInterestStatus();
+  }, [eventId]);
+
   const handleToggleInterest = async () => {
+    if (!localStorage.getItem('token')) {
+      alert("Vous devez être connecté pour marquer votre intérêt");
+      window.location.href = '/login';
+      return;
+    }
+
     setLoading(true);
-
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
       let response;
-
       if (isInterested) {
-        // Se désintéresser
-        response = await axios.delete(`/api/events/${event.id}/interested`, { headers });
-        setIsInterested(false);
-        setInterestedCount(prev => prev - 1);
+        // Si déjà intéressé, on retire l'intérêt
+        response = await api.delete(`/events/${eventId}/interested`);
       } else {
-        // S'intéresser
-        response = await axios.post(`/api/events/${event.id}/interested`, {}, { headers });
-        setIsInterested(true);
-        setInterestedCount(prev => prev + 1);
+        // Sinon on ajoute l'intérêt
+        response = await api.post(`/events/${eventId}/interested`);
       }
-
-      // Appeler le callback parent si fourni
-      if (onToggle) {
-        onToggle(event.id, !isInterested, interestedCount);
-      }
-
-      // Optionnel : afficher un message de succès
-      console.log(response.data.message);
-
+      
+      // Mettre à jour l'état avec les nouvelles données
+      setIsInterested(response.data.is_interested);
+      setInterestedCount(response.data.interested_count);
+      
     } catch (error) {
-      console.error('Erreur lors du toggle d\'intérêt:', error);
-
-      // Afficher l'erreur à l'utilisateur
-      if (error.response?.data?.message) {
-        alert(error.response.data.message);
+      console.error("Erreur lors du toggle d'intérêt:", error);
+      if (error.response?.status === 401) {
+        alert("Vous devez être connecté pour marquer votre intérêt");
+        window.location.href = '/login';
       } else {
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        alert(error.response?.data?.message || "Une erreur s'est produite");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Vérifier si l'événement est complet
-  const isEventFull = event.max_participants && interestedCount >= event.max_participants;
-  const canRegister = event.can_register !== false && (!isEventFull || isInterested);
-
-  // Classes CSS dynamiques
-  const buttonClasses = [
-    'interest-toggle-button',
-    `interest-toggle-button--${size}`,
-    isInterested ? 'interest-toggle-button--interested' : 'interest-toggle-button--not-interested',
-    loading ? 'interest-toggle-button--loading' : '',
-    !canRegister && !isInterested ? 'interest-toggle-button--disabled' : '',
-    className
-  ].filter(Boolean).join(' ');
-
   return (
-    <div className="interest-toggle-container">
+    <div className="flex flex-col items-center gap-2">
       <button
-        className={buttonClasses}
         onClick={handleToggleInterest}
-        disabled={loading || (!canRegister && !isInterested)}
-        title={
-          !canRegister && !isInterested
-            ? 'Événement complet'
-            : isInterested
-              ? 'Se désintéresser de cet événement'
-              : 'S\'intéresser à cet événement'
-        }
+        disabled={loading}
+        className={`inline-flex items-center px-4 py-2 border rounded-md text-sm font-medium
+          ${isInterested
+            ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
+            : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+          }
+          ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        `}
       >
-        <span className="interest-toggle-button__icon">
-          {loading ? (
-            '⏳'
-          ) : isInterested ? (
-            '❤️'
-          ) : (
-            '🤍'
-          )}
-        </span>
-
-        <span className="interest-toggle-button__text">
-          {loading ? (
-            'Chargement...'
-          ) : isInterested ? (
-            'Intéressé(e)'
-          ) : (
-            isEventFull ? 'Complet' : 'M\'intéresser'
-          )}
-        </span>
-
-        <span className="interest-toggle-button__count">
-          ({interestedCount})
-        </span>
+        {loading ? 'Chargement...' : (isInterested ? 'Je ne suis plus intéressé' : 'Je suis intéressé')}
       </button>
-
-      {/* Indicateur visuel pour événement complet */}
-      {isEventFull && !isInterested && (
-        <div className="interest-toggle-warning">
-          ⚠️ Nombre maximum de participants atteint
-        </div>
-      )}
+      <div className="text-sm text-gray-600">
+        {interestedCount} {interestedCount <= 1 ? 'personne intéressée' : 'personnes intéressées'}
+      </div>
     </div>
   );
-};
-
-export default InterestToggleButton;
+}
