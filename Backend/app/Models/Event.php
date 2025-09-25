@@ -10,7 +10,15 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title', 'description', 'location', 'start_at', 'end_at', 'user_id'
+        'title', 'description', 'category', 'location', 'start_at', 'end_at', 'user_id'
+    ];
+
+    const CATEGORIES = [
+        'religious' => 'Religieux',
+        'transport' => 'Transport',
+        'health' => 'Santé',
+        'security' => 'Sécurité',
+        'accommodation' => 'Hébergement',
     ];
 
     protected $casts = [

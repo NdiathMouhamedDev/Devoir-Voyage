@@ -19,13 +19,18 @@ class EventController extends Controller
             return response()->json(['error' => 'Utilisateur non authentifié'], 401);
         }
 
+        $validatedData = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'required|string',
+            'category'    => 'required|string|in:' . implode(',', array_keys(Event::CATEGORIES)),
+            'location'    => 'required|string',
+            'start_at'    => 'required|date',
+            'end_at'      => 'required|date|after:start_at',
+        ]);
+
         $event = Event::create([
-            'title'       => $request->title,
-            'description' => $request->description,
-            'location'    => $request->location,
-            'start_at'    => $request->start_at,
-            'end_at'      => $request->end_at,
-            'user_id'     => $user->id,
+            ...$validatedData,
+            'user_id' => $user->id,
         ]);
 
         return response()->json([
