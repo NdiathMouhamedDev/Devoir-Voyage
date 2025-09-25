@@ -36,14 +36,24 @@ class EventController extends Controller
 
     public function index(): JsonResponse
     {
-        $events = Event::all();
-        
+        $user = auth()->user();
+
+        $events = Event::withCount('interestedUsers')->get()
+            ->map(function ($event) use ($user) {
+                $event->is_user_interested = $user 
+                    ? $event->interestedUsers->contains($user->id)
+                    : false;
+                return $event;
+            });
+
         return response()->json([
             'message' => 'Events retrieved successfully',
-            'data'    => $events,
-            'total'   => $events->count()
+            'data' => $events,
+            'total' => $events->count()
         ]);
     }
+
+
 
     public function show(Event $event): JsonResponse
     {

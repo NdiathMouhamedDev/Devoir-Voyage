@@ -18,10 +18,10 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         'password',
         'role',
         'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
-        'admin_request_status',
-        'admin_requested_at',
-        'admin_approved_at',
-        'admin_verification_token',
+        // 'admin_request_status',
+        // 'admin_requested_at',
+        // 'admin_approved_at',
+        // 'admin_verification_token',
     ];
 
     public function isAdmin()

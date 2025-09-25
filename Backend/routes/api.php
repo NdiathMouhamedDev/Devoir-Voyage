@@ -6,8 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\EventInterestController;
+
 
 // -------------------------
 // Auth routes
@@ -53,18 +53,18 @@ Route::middleware('auth:sanctum')->get('/dashboard/access-check', function (Requ
 });
 
 // -------------------------
-// Events (protégés par Sanctum ET Admin seulement)
+// Events (protégés par Sanctum seulement)
 // -------------------------
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::middleware(['auth:sanctum',])->group(function () {
     Route::apiResource('events', EventController::class); //crée auto les link crud
 });
 
 //-------------------------------- 
-// Events interesting (Admin seulement)
+// Events interesting 
 // -------------------------------
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::post('/events/{event}/interested', [EventController::class, 'interested']);
-    Route::delete('/events/{event}/interested', [EventController::class, 'uninterested']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/events/{event}/interested', [EventInterestController::class, 'store']);
+    Route::delete('/events/{event}/interested', [EventInterestController::class, 'destroy']);
 });
 
 // -------------------------

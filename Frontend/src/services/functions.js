@@ -1,4 +1,6 @@
 import api from "../api";
+import axios from "axios";
+
 
 // 📌 Récupérer tous les événements
 export async function recupEvents() {
