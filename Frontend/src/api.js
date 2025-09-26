@@ -5,6 +5,7 @@ const api = axios.create({
   withCredentials: true, // pour CORS avec cookies
 
 });
+ 
 
 // 🔑 Ajouter le token automatiquement si présent
 api.interceptors.request.use((config) => {
@@ -23,7 +24,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user_id");
-      window.location.href = "/login"; // redirection vers login
+      // Redirection vers la page de login sans utiliser de hook React
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }

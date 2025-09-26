@@ -8,6 +8,31 @@ use Illuminate\Http\JsonResponse;
 
 class EventController extends Controller
 {
+
+    // Route publique
+    public function publicEvents()
+{
+    $events = Event::withCount('interestedUsers') // ajoute interested_users_count
+                   ->select('id', 'title', 'description', 'date', 'location', 'image')
+                   ->orderBy('date', 'asc')
+                   ->take(5)
+                   ->get()
+                   ->map(function($event) {
+                       return [
+                           'id' => $event->id,
+                           'title' => $event->title,
+                           'description' => $event->description,
+                           'date' => $event->date,
+                           'location' => $event->location,
+                           'image' => $event->image,
+                           'interested_count' => $event->interested_users_count, // nombre d'intéressés
+                           'is_user_interested' => false // par défaut pour public
+                       ];
+                   });
+
+    return response()->json($events);
+}
+
     public function store(Request $request): JsonResponse
     {
         $user = auth()->user();

@@ -10,6 +10,12 @@ use App\Http\Controllers\EventInterestController;
 use App\Http\Controllers\ProfileController;
 
 
+// ----------------------
+// Routes public events
+// ---------------------
+Route::get('/events/public', [EventController::class, 'publicEvents']);
+
+
 // -------------------------
 // Auth routes
 // -------------------------
@@ -105,3 +111,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile/interested-events', [ProfileController::class, 'interestedEvents'])->name('profile.interested-events');
     Route::get('/profile/{id}', [ProfileController::class, 'publicProfil'])->whereNumber('id')->name('profile.public');
 });
+

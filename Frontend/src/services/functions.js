@@ -18,8 +18,6 @@ export async function recupEvents() {
 export async function recupEventById(id) {
   try {
     const res = await api.get(`/events/${id}`);
-    // Le backend renvoie { message, data: { ...event } }
-    // On retourne directement l'objet événement
     return res.data.data;
   } catch (err) {
     console.error("❌ Erreur recupEventById:", err.response?.data || err.message);
@@ -62,15 +60,20 @@ export async function deleteEvent(id) {
   }
 }
 
-export function checkAuth(navigate) {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("user_id");
-
-  if (!token || !userId) {
-    alert("Veuillez vous connecter pour accéder à cette page.");
-    navigate("/login"); // redirection vers login
-    return false;
-  }
-
-  return true;
-}
+// export function checkAuth(navigate) {
+//   const token = localStorage.getItem("token");
+//   const userId = localStorage.getItem("user_id");
+  
+//   const pathname = window.location.pathname;
+  
+//   // Vérifier seulement si on est sur une page protégée (événements, dashboard, profile)
+//   if (token || !userId) {
+//   if (pathname.startsWith("/events") || pathname.startsWith("/dashboard") || pathname.startsWith("/profile")) {
+//       alert("Veuillez vous connecter pour accéder à cette page.");
+//       navigate("/login");
+//       return false;
+//     }
+//   }
+  
+//   return true;
+// }

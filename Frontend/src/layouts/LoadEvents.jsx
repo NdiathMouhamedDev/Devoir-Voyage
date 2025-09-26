@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { recupEvents } from "../services/functions";
 import EventCard from "../components/miniComponents/EventCard";
 import CategoryFilter from "../components/miniComponents/CategoryFilter";
-import { checkAuth } from "../services/functions";
 import api from "../api";
 
 const categories = {
@@ -25,8 +24,6 @@ export default function LoadEvents() {
 
 
 useEffect(() => {
-  if (!checkAuth(navigate)) return;
-
   api.get("/events")
     .then((res) => {
       console.log("Réponse API /events:", res.data);

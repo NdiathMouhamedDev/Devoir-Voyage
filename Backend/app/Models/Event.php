@@ -53,7 +53,12 @@ class Event extends Model
 
     public function interestedEvents()
     {
-        return $this->belongsToMany(Event::class, 'event_user');
+        return $this->belongsToMany(
+            User::class,        // modèle cible
+            'event_user',       // table pivot
+            'event_id',         // clé étrangère vers events
+            'user_id'           // clé étrangère vers users
+        );
     }
 
 

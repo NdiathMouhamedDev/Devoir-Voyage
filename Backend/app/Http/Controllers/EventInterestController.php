@@ -11,8 +11,8 @@ class EventInterestController extends Controller
 {
     public function status(Event $event): JsonResponse
     {
-        $user = Auth::user();
-        $isInterested = $event->interestedUsers()->where('user_id', $user->id)->exists();
+        $user = auth()->user(); // null si non connecté
+        $isInterested = $user ? $event->interestedUsers()->where('user_id', $user->id)->exists() : false;
         $count = $event->interestedUsers()->count();
 
         return response()->json([
