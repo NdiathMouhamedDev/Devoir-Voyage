@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import Navbar from "./miniCompenents/Navbar";
+import Navbar from "./miniComponents/Navbar";
 
 
 export default function Header() {

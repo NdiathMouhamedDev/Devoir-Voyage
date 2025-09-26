@@ -13,6 +13,20 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+
 });
+
+// Intercepteur pour gérer les erreurs 401 (non connecté)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      window.location.href = "/login"; // redirection vers login
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

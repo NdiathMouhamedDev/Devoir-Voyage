@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import EventCard from "./miniCompenents/EventCard";
+import EventCard from "./miniComponents/EventCard";
 
 export default function Events() {
     return (

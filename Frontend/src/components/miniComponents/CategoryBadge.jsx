@@ -9,11 +9,11 @@ const categoryColors = {
 };
 
 const categoryIcons = {
+  religious:'🕌',
   transport: '🚌',
   health: '🏥',
   security: '🛡️',
   accommodation: '🏠',
-  religious:'🕌'
 };
 
 export default function CategoryBadge({ category }) {

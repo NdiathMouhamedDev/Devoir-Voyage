@@ -61,3 +61,16 @@ export async function deleteEvent(id) {
     throw err;
   }
 }
+
+export function checkAuth(navigate) {
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("user_id");
+
+  if (!token || !userId) {
+    alert("Veuillez vous connecter pour accéder à cette page.");
+    navigate("/login"); // redirection vers login
+    return false;
+  }
+
+  return true;
+}

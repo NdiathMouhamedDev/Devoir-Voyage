@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import CategoryBadge from '../components/CategoryBadge';
-import InterestToggleButton from '../compenents/miniCompenents/InterestToggleButton';
+import CategoryBadge from '../components/miniComponents/CategoryBadge';
+import InterestToggleButton from '../components/miniComponents/InterestToggleButton';
 import { recupEventById } from '../services/functions';
-import AvatarMenu from '../components/AvatarMenu';
+import AvatarMenu from '../components/miniComponents/AvatarMenu';
 
 export default function EventDetails() {
   const { id } = useParams();

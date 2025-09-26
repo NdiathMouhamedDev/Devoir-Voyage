@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './App.css'
 import App from './App.jsx'
-import ToggleTheme from './compenents/ToggleTheme.jsx'
+import ToggleTheme from './components/ToggleTheme.jsx'
 import { AuthProvider } from './layouts/UseAuth';
 
 

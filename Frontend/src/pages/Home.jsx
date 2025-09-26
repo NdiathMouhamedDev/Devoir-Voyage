@@ -1,8 +1,8 @@
-import Header from "../compenents/Header"
-import Footer from "../compenents/Footer"
-import MainHome from "../compenents/MainHome"
-import MiniEvents from "../compenents/MiniEvents"
-import Contact from "../compenents/Contact"
+import Header from "../components/Header"
+import Footer from "../components/Footer"
+import MainHome from "../components/MainHome"
+import MiniEvents from "../components/MiniEvents"
+import Contact from "../components/Contact"
 
 export default function MainLayout({ className }) {
     return (

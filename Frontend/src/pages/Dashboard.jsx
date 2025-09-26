@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '../layouts/UseAuth';
 import RegisterEvent from '../layouts/RegisterEvent';
-import AvatarMenu from '../components/AvatarMenu';
+import AvatarMenu from '../components/miniComponents/AvatarMenu';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout,  } = useAuth();

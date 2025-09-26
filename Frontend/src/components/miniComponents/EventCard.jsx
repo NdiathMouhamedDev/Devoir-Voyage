@@ -1,5 +1,5 @@
 import InterestToggleButton from "./InterestToggleButton";
-import CategoryBadge from "../../components/CategoryBadge";
+import CategoryBadge from "./CategoryBadge";
 import { Link } from "react-router-dom";
 
 export default function EventCard({

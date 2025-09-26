@@ -1,7 +1,8 @@
 import LoadEvents from "../layouts/LoadEvents"
-import AvatarMenu from "../components/AvatarMenu";
+import AvatarMenu from "../components/miniComponents/AvatarMenu";
 
 export default function Events() {
+  
 
   return(
     <div>
