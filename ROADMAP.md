@@ -16,6 +16,10 @@
   - Implémenter le système de filtrage
   - Créer une interface de filtrage
 
+- [ ] **Système de QR Code**
+  - Générer un QR code unique par pèlerin
+  - Page de profil avec QR code
+
 ## 🚀 À Implémenter
 
 ### **Authentification**
@@ -36,8 +40,6 @@
   - Informations de voyage
 
 - [ ] **Système de QR Code**
-  - Générer un QR code unique par pèlerin
-  - Page de profil avec QR code
   - Système de scan pour les administrateurs
 
 ### Phase 3: Système de Notifications (Priorité Moyenne)
