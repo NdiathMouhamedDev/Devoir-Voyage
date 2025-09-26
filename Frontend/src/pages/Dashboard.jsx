@@ -1,11 +1,13 @@
 // Dashboard.jsx avec useAuth
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../layouts/UseAuth';
 import RegisterEvent from '../layouts/RegisterEvent';
 import AvatarMenu from '../components/miniComponents/AvatarMenu';
+import EventManagement from '../layouts/EventManagement'; // Importer le nouveau composant
 
 const Dashboard = () => {
-    const { user, isAdmin, isAuthenticated, loading, logout,  } = useAuth();
+    const { user, isAdmin, isAuthenticated, loading, logout } = useAuth();
+    const [activeSection, setActiveSection] = useState('overview'); // État pour gérer les sections
 
     if (loading) {
         return (
@@ -100,6 +102,103 @@ const Dashboard = () => {
         );
     }
 
+    // Fonction pour rendre le contenu selon la section active
+    const renderContent = () => {
+        switch (activeSection) {
+            case 'events':
+                return <EventManagement />;
+            case 'create-event':
+                return <RegisterEvent />;
+            case 'overview':
+            default:
+                return (
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                        gap: '1.5rem'
+                    }}>
+                        <div style={{ 
+                            backgroundColor: 'white',
+                            padding: '2rem',
+                            borderRadius: '0.5rem',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <h3 style={{ marginTop: 0 }}>📊 Statistiques</h3>
+                            <p>Consultez les statistiques de la plateforme</p>
+                            <button style={{ 
+                                padding: '0.5rem 1rem', 
+                                backgroundColor: '#8b5cf6', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '0.375rem',
+                                cursor: 'pointer'
+                            }}>
+                                Voir les stats
+                            </button>
+                        </div>
+
+                        <div style={{ 
+                            backgroundColor: 'white',
+                            padding: '2rem',
+                            borderRadius: '0.5rem',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <h3 style={{ marginTop: 0 }}>👥 Utilisateurs</h3>
+                            <p>Gérez les utilisateurs et leurs rôles</p>
+                            <button style={{ 
+                                padding: '0.5rem 1rem', 
+                                backgroundColor: '#10b981', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '0.375rem',
+                                cursor: 'pointer'
+                            }}>
+                                Gérer les utilisateurs
+                            </button>
+                        </div>
+
+                        <div style={{ 
+                            backgroundColor: 'white',
+                            padding: '2rem',
+                            borderRadius: '0.5rem',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <h3 style={{ marginTop: 0 }}>📅 Événements</h3>
+                            <p>Créez et gérez les événements</p>
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <button 
+                                    onClick={() => setActiveSection('events')}
+                                    style={{ 
+                                        padding: '0.5rem 1rem', 
+                                        backgroundColor: '#f59e0b', 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        borderRadius: '0.375rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    📋 Liste des événements
+                                </button>
+                                <button 
+                                    onClick={() => setActiveSection('create-event')}
+                                    style={{ 
+                                        padding: '0.5rem 1rem', 
+                                        backgroundColor: '#10b981', 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        borderRadius: '0.375rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    ➕ Créer un événement
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+        }
+    };
+
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
             {/* Header du dashboard */}
@@ -139,73 +238,30 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* Navigation */}
+            {activeSection !== 'overview' && (
+                <div style={{ marginBottom: '2rem' }}>
+                    <button
+                        onClick={() => setActiveSection('overview')}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#6b7280',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        ← Retour au dashboard
+                    </button>
+                </div>
+            )}
+
             {/* Contenu principal */}
-            <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '1.5rem'
-            }}>
-                <div style={{ 
-                    backgroundColor: 'white',
-                    padding: '2rem',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                }}>
-                    <h3 style={{ marginTop: 0 }}>📊 Statistiques</h3>
-                    <p>Consultez les statistiques de la plateforme</p>
-                    <button style={{ 
-                        padding: '0.5rem 1rem', 
-                        backgroundColor: '#8b5cf6', 
-                        color: 'white', 
-                        border: 'none', 
-                        borderRadius: '0.375rem',
-                        cursor: 'pointer'
-                    }}>
-                        Voir les stats
-                    </button>
-                </div>
-
-                <div style={{ 
-                    backgroundColor: 'white',
-                    padding: '2rem',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                }}>
-                    <h3 style={{ marginTop: 0 }}>👥 Utilisateurs</h3>
-                    <p>Gérez les utilisateurs et leurs rôles</p>
-                    <button style={{ 
-                        padding: '0.5rem 1rem', 
-                        backgroundColor: '#10b981', 
-                        color: 'white', 
-                        border: 'none', 
-                        borderRadius: '0.375rem',
-                        cursor: 'pointer'
-                    }}>
-                        Gérer les utilisateurs
-                    </button>
-                </div>
-
-                <div style={{ 
-                    backgroundColor: 'white',
-                    padding: '2rem',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                }}>
-                    <h3 style={{ marginTop: 0 }}>📅 Événements</h3>
-                    <p>Créez et gérez les événements</p>
-                    <button  style={{ 
-                        padding: '0.5rem 1rem', 
-                        backgroundColor: '#f59e0b', 
-                        color: 'white', 
-                        border: 'none', 
-                        borderRadius: '0.375rem',
-                        cursor: 'pointer'
-                    }}>
-                        Gérer les événements
-                    </button>
-                </div>
-                <RegisterEvent />
-            </div>
+            {renderContent()}
 
             {/* Section debug */}
             {process.env.NODE_ENV === 'development' && (
@@ -223,7 +279,8 @@ const Dashboard = () => {
                             {JSON.stringify({
                                 user: user,
                                 isAdmin: isAdmin(),
-                                isAuthenticated: isAuthenticated()
+                                isAuthenticated: isAuthenticated(),
+                                activeSection: activeSection
                             }, null, 2)}
                         </pre>
                     </details>
