@@ -8,6 +8,7 @@ import EventDetails from "./pages/EventDetails";
 import Profile from "./pages/Profile";
 import VerifyEmail from "./layouts/VerifyEmail";
 import AdminVerificationDebug from "./pages/AdminVerificationDebug";
+import Hourly from "./pages/Hourly";
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/event/:id" element={<EventDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/hourly" element={<Hourly />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/debug" element={<AdminVerificationDebug />} />
       </Routes>

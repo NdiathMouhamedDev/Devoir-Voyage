@@ -60,6 +60,57 @@ export async function deleteEvent(id) {
   }
 }
 
+
+// -----------------
+// Hourly
+// -----------------
+
+export const getHourly = async () => {
+  try{
+    const res = await api.get("/hourly");
+    const response = res.data;
+    return res.data;
+  }catch (err){
+    console.log("Une erreure au niveau de la recuperation ",err.message);
+    return [];
+  }
+};
+
+export const createHourly = async (data) => {
+  try{
+    const res = await api.post("/hourly", data);
+    const response = res.data;
+    return res.data;
+  }catch (err){
+    console.log("Une erreure au niveau de l'envoi ",err.message);
+    return [];
+}
+};
+
+export const updateHourly = async (id, data) => {
+  try{
+    const res = await api.put(`/hourly/${id}`, data);
+    const response = res.data;
+    return res.data;
+  }catch (err){
+    console.log("Une erreure au niveau du mise ajoure ",err.message);
+    return [];
+}
+};
+
+export const deleteHourly = async (id) => {
+  try{
+    await api.delete(`/hourly/${id}`);
+  }catch (err){
+  console.log("Une erreure lors de la suppression ",err.message);
+  return [];
+}
+};
+
+
+
+
+
 // export function checkAuth(navigate) {
 //   const token = localStorage.getItem("token");
 //   const userId = localStorage.getItem("user_id");
