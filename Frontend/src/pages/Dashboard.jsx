@@ -4,6 +4,7 @@ import { useAuth } from '../layouts/UseAuth';
 import RegisterEvent from '../layouts/RegisterEvent';
 import AvatarMenu from '../components/miniComponents/AvatarMenu';
 import EventManagement from '../layouts/EventManagement'; // Importer le nouveau composant
+import Stats from '../layouts/Stats';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout } = useAuth();
@@ -123,46 +124,6 @@ const Dashboard = () => {
                             borderRadius: '0.5rem',
                             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                         }}>
-                            <h3 style={{ marginTop: 0 }}>📊 Statistiques</h3>
-                            <p>Consultez les statistiques de la plateforme</p>
-                            <button style={{ 
-                                padding: '0.5rem 1rem', 
-                                backgroundColor: '#8b5cf6', 
-                                color: 'white', 
-                                border: 'none', 
-                                borderRadius: '0.375rem',
-                                cursor: 'pointer'
-                            }}>
-                                Voir les stats
-                            </button>
-                        </div>
-
-                        <div style={{ 
-                            backgroundColor: 'white',
-                            padding: '2rem',
-                            borderRadius: '0.5rem',
-                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                        }}>
-                            <h3 style={{ marginTop: 0 }}>👥 Utilisateurs</h3>
-                            <p>Gérez les utilisateurs et leurs rôles</p>
-                            <button style={{ 
-                                padding: '0.5rem 1rem', 
-                                backgroundColor: '#10b981', 
-                                color: 'white', 
-                                border: 'none', 
-                                borderRadius: '0.375rem',
-                                cursor: 'pointer'
-                            }}>
-                                Gérer les utilisateurs
-                            </button>
-                        </div>
-
-                        <div style={{ 
-                            backgroundColor: 'white',
-                            padding: '2rem',
-                            borderRadius: '0.5rem',
-                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                        }}>
                             <h3 style={{ marginTop: 0 }}>📅 Événements</h3>
                             <p>Créez et gérez les événements</p>
                             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -262,6 +223,7 @@ const Dashboard = () => {
 
             {/* Contenu principal */}
             {renderContent()}
+            <Stats />
 
             {/* Section debug */}
             {process.env.NODE_ENV === 'development' && (
