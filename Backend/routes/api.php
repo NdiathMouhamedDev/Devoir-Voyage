@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventInterestController;
+use App\Http\Controllers\HourlyController;
 use App\Http\Controllers\ProfileController;
 
 
@@ -112,3 +113,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile/{id}', [ProfileController::class, 'publicProfil'])->whereNumber('id')->name('profile.public');
 });
 
+
+// ----------------------
+// Hourly
+// -----------------------
+Route::middleware('auth:sanctum',)->group(function () {
+    Route::apiResource('hourly', HourlyController::class);
+});
