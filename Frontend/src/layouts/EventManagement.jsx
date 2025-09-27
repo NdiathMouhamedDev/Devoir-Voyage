@@ -11,8 +11,8 @@ const EventManagement = () => {
         description: '',
         date: '',
         location: '',
-        // price: 0,
-        // capacity: 0
+        price: 0,//avec prix
+        // capacity: 0 //pas de capacité
     });
 
     // Charger tous les événements

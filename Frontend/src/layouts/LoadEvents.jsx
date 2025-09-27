@@ -11,7 +11,7 @@ const categories = {
   health: "Santé",
   security: "Securité",
   accommodation: "Hébergement",
-};
+};//plus de catégorie maintenant !!!!!!!!
 
 export default function LoadEvents() {
   const [events, setEvents] = useState([]);

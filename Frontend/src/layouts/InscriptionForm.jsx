@@ -5,7 +5,7 @@ export default function InscriptionForm({ hourly }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    phone_number: "",
+    telephone: "",
     address: "",
     paiement: "cash",
   });
@@ -23,7 +23,7 @@ export default function InscriptionForm({ hourly }) {
           ...prev,
           name: res.data.name || "",
           email: res.data.email || "",
-          phone_number: res.data.phone_number || "",
+          telephone: res.data.telephone || "",
           address: res.data.address || "",
         }));
       })
@@ -32,36 +32,43 @@ export default function InscriptionForm({ hourly }) {
 
   // Soumission du formulaire
   async function handleSubmit(e) {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setStatus("⚠️ Vous devez être connecté");
-      return;
-    }
+  e.preventDefault();
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setStatus("⚠️ Vous devez être connecté");
+    return;
+  }
 
-    try {
-      const res = await api.put("/user", {
-        name: form.name,
-        email: form.email,
-        phone_number: form.phone_number,
-        address: form.address,
-      });
+  try {
+    // 1. Mise à jour profil
+    await api.put("/user", {
+      name: form.name,
+      email: form.email,
+      phone_number: form.phone_number,
+      address: form.address,
+    });
 
-      setStatus("✅ Profil mis à jour avec succès !");
-      console.log("Réponse backend:", res.data);
+    // 2. Inscription à l’event
+    const res = await api.post("/inscriptions", {
+      event_id: hourly?.id ?? 1, // ⚠️ passer l’id de l’event courant
+      paiement: form.paiement,
+    });
 
-    } catch (err) {
-      console.error("Erreur Axios complète:", err);
+    setStatus("✅ Inscription réussie !");
+    console.log("Réponse backend:", res.data);
 
-      if (err.response) {
-        setStatus("❌ " + (err.response.data.message || "Erreur serveur"));
-      } else if (err.request) {
-        setStatus("❌ Pas de réponse du serveur");
-      } else {
-        setStatus("❌ Erreur: " + err.message);
-      }
+  } catch (err) {
+    console.error("Erreur Axios complète:", err);
+    if (err.response) {
+      setStatus("❌ " + (err.response.data.message || "Erreur serveur"));
+    } else if (err.request) {
+      setStatus("❌ Pas de réponse du serveur");
+    } else {
+      setStatus("❌ Erreur: " + err.message);
     }
   }
+}
+
 
 
   return (
@@ -95,8 +102,8 @@ export default function InscriptionForm({ hourly }) {
         <input
           type="text"
           className="input input-bordered w-full"
-          value={form.phone_number}
-          onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+          value={form.telephone}
+          onChange={(e) => setForm({ ...form, telephone: e.target.value })}
           required
         />
       </div>
