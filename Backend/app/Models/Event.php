@@ -61,4 +61,15 @@ class Event extends Model
     {
         return $this->interestedUsers()->count();
     }
+
+    public function hourlies()
+    {
+        return $this->hasMany(Hourly::class);
+    }
+
+    public function inscription ()
+    {
+        return $this->hasMany(Inscription::class);
+    }
+
 }

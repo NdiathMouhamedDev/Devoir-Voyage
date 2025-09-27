@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('startup'); // 
             $table->dateTime('end')->nullable(); // 
             $table->string('place')->nullable(); // Lieu concerné
+            $table->foreignId('event_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -5,15 +5,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inscription extends Model
 {
+
     protected $fillable = ['user_id', 'hourly_id'];
 
     public function user() {
         return $this->belongsTo(User::class);
     }
-
+    public function event() {
+        return $this->belongsTo(Event::class);
+    }
     public function hourly() {
         return $this->belongsTo(Hourly::class);
     }
+
 
     public function store(Request $request, $hourlyId)
     {

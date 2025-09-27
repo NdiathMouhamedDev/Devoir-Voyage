@@ -19,4 +19,10 @@ class Hourly extends Model
         return $this->hasMany(Inscription::class);
     }
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+
+
 }

@@ -13,13 +13,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inscriptions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('hourly_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->foreignId('event_id')->constrained()->onDelete('cascade');
+        $table->foreignId('hourly_id')->nullable()->constrained()->onDelete('cascade'); 
+        $table->string('phone_number')->nullable();
+        $table->string('address')->nullable();
+        $table->enum('payment', ['cash', 'online'])->default('cash');
+        $table->enum('statuts', ['pending', 'valid', 'canceled'])->default('pending');
+        $table->timestamps();
+});
 
-            $table->unique(['user_id', 'hourly_id']); // empêche double inscription
-        });
     }
 
 
