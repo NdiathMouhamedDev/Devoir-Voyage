@@ -15,4 +15,9 @@ class Hourly extends Model
         'arrivee',
         'description',
     ];
+
+    public function inscriptions() {
+        return $this->hasMany(Inscription::class);
+    }
+
 }

@@ -18,12 +18,14 @@ class AuthenticatedSessionController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|unique:users',
+            'address'    => 'required|string|max:255',
             'password' => 'required|string|min:6',
         ]);
 
         $user = User::create([
             'name'     => $validated['name'],
             'email'    => $validated['email'],
+            'address'    => $validated['address'],
             'password' => bcrypt($validated['password']),
         ]);
 

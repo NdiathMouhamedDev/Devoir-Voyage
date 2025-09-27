@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import VerifyEmail from "./layouts/VerifyEmail";
 import AdminVerificationDebug from "./pages/AdminVerificationDebug";
 import Hourly from "./pages/Hourly";
+import InscriptionForm from "./layouts/InscriptionForm";
 
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/hourly" element={<Hourly />} />
         <Route path="/hourly/:id" element={<HourlyDetail />} />
+        <Route path="/hourly/:id/inscrire" element={<InscriptionForm />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/debug" element={<AdminVerificationDebug />} />
       </Routes>

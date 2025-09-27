@@ -8,7 +8,10 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventInterestController;
 use App\Http\Controllers\HourlyController;
+use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+
 
 
 // ----------------------
@@ -16,6 +19,15 @@ use App\Http\Controllers\ProfileController;
 // ---------------------
 Route::get('/events/public', [EventController::class, 'publicEvents']);
 
+
+// ----------------
+// user
+// --------------
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [UserController::class, 'profile']); 
+    Route::put('/user', [UserController::class, 'update']); 
+});
 
 // -------------------------
 // Auth routes
@@ -120,3 +132,14 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum',)->group(function () {
     Route::apiResource('hourly', HourlyController::class);
 });
+
+// ----------------------
+// Les inscriptions
+// ----------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/hourly/{id}/inscrire', [InscriptionController::class, 'store']);
+    Route::delete('/hourly/{id}/desinscrire', [InscriptionController::class, 'destroy']);
+});
+
+
+

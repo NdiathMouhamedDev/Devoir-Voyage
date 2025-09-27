@@ -148,6 +148,7 @@ export default function Hourly() {
                         </div>
                         <div className="flex gap-2">
                             <Link to={`/hourly/${h.id}`} className="btn btn-sm btn-info">📖 Détails</Link>
+                            <Link to={`/hourly/${h.id}/inscrire`} className="btn btn-sm btn-info">S'inscrire</Link>
                             <button className="btn btn-sm btn-warning" onClick={() => handleEdit(h)}>✏️</button>
                             <button className="btn btn-sm btn-error" onClick={() => handleDelete(h.id)}>🗑️</button>
                         </div>
