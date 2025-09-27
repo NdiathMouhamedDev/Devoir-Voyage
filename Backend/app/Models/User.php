@@ -18,6 +18,8 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         'password',
         'role',
         'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
+        'telephone',
+        'address',
         // 'admin_request_status',
         // 'admin_requested_at',
         // 'admin_approved_at',
@@ -61,5 +63,10 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         return $this->belongsToMany(Event::class, 'event_user', 'user_id', 'event_id')
                     ->withTimestamps();
     }
+
+    public function inscriptions() {
+        return $this->hasMany(Inscription::class);
+    }
+
 
 }

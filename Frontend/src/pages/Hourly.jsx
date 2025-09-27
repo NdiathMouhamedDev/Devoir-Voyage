@@ -1,30 +1,43 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getHourly, createHourly, updateHourly, deleteHourly } from "../services/functions";
 import Calendars from "../layouts/Calendars";
 
 export default function Hourly() {
     const [hourly, setHourly] = useState([]);
-    const [form, setForm] = useState({ titre: "", date_heure: "" });
     const [editId, setEditId] = useState(null);
+    const [form, setForm] = useState({
+    titre: "",
+    date_heure: "",
+    lieu: "",
+    depart: "",
+    arrivee: ""
+    });
 
+
+    // 
     // Charger les horaires
     useEffect(() => {
         getHourly().then(setHourly);
     }, []);
 
-    // Ajouter un horaire
+
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (editId) {
-            const updated = await updateHourly(editId, form);
-            setHourly(hourly.map((h) => (h.id === editId ? updated : h)));
-            setEditId(null);
-        } else {
-            const newHourly = await createHourly(form);
-            setHourly([...hourly, newHourly]);
-        }
-        setForm({ titre: "", date_heure: "" });
+    e.preventDefault();
+
+    if (!validateForm()) return; // ⛔ Stoppe si les règles ne passent pas
+
+    if (editId) {
+        const updated = await updateHourly(editId, form);
+        setHourly(hourly.map((h) => (h.id === editId ? updated : h)));
+        setEditId(null);
+    } else {
+        const newHourly = await createHourly(form);
+        setHourly([...hourly, newHourly]);
+    }
+    setForm({ titre: "", date_heure: "", lieu: "", depart: "", arrivee: "" });
     };
+
 
     // Supprimer un horaire
     const handleDelete = async (id) => {
@@ -46,6 +59,39 @@ export default function Hourly() {
 
         setEditId(hourly.id);
     };
+
+    const validateForm = () => {
+    const { titre, date_heure, depart, arrivee } = form;
+
+    if (!titre || !date_heure || !depart) {
+        alert("⚠️ Veuillez remplir au moins Titre, Date et Départ.");
+        return false;
+    }
+
+    const eventDate = new Date(date_heure);
+    const now = new Date();
+    if (eventDate < now) {
+        alert("⚠️ La date de l’événement ne peut pas être dans le passé.");
+        return false;
+    }
+
+    const departDateTime = new Date(`${eventDate.toISOString().split("T")[0]}T${depart}`);
+    if (departDateTime < eventDate) {
+        alert("⚠️ L’heure de départ doit être après la date/heure de l’événement.");
+        return false;
+    }
+
+    if (arrivee) {
+        const arriveeDateTime = new Date(`${eventDate.toISOString().split("T")[0]}T${arrivee}`);
+        if (arriveeDateTime < departDateTime) {
+        alert("⚠️ L’heure d’arrivée doit être après l’heure de départ.");
+        return false;
+        }
+    }
+
+    return true;
+    };
+
 
     return (
         <div className="p-4">
@@ -101,6 +147,8 @@ export default function Hourly() {
                             {h.date_heure ? new Date(h.date_heure).toLocaleString() : "⏳ En attente"}
                         </div>
                         <div className="flex gap-2">
+                            <Link to={`/hourly/${h.id}`} className="btn btn-sm btn-info">📖 Détails</Link>
+                            <Link to={`/hourly/${h.id}/inscrire`} className="btn btn-sm btn-info">S'inscrire</Link>
                             <button className="btn btn-sm btn-warning" onClick={() => handleEdit(h)}>✏️</button>
                             <button className="btn btn-sm btn-error" onClick={() => handleDelete(h.id)}>🗑️</button>
                         </div>
@@ -111,3 +159,8 @@ export default function Hourly() {
         </div>
     );
 }
+
+
+
+
+
