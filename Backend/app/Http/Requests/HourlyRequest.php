@@ -17,33 +17,32 @@ class HourlyRequest extends FormRequest
     public function rules()
     {
         return [
-            'titre' => 'required|string|max:255',
-            'date_heure' => 'required|date|after_or_equal:now',
-            'lieu' => 'nullable|string|max:255',
-            'depart' => 'required|date_format:H:i',
-            'arrivee' => 'nullable|date_format:H:i|after_or_equal:depart',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'startup' => 'required|date|after_or_equal:now',
+            'end' => 'nullable|date_format:H:i|after_or_equal:startup',
+            'place' => 'required|strint|max:255',
         ];
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $date = $this->input('date_heure');
-            $depart = $this->input('depart');
-            $arrivee = $this->input('arrivee');
+            $startup = $this->input('end');
+            $end = $this->input('end');
 
-            if ($date && $depart) {
-                $eventDate = new \DateTime($date);
-                $departTime = new \DateTime($eventDate->format('Y-m-d') . ' ' . $depart);
+            if ($end && $startup) {
+                $Date = new \DateTime();
+                $startupTime = new \DateTime($Date->format('Y-m-d') . ' ' . $startup);
 
-                if ($departTime < $eventDate) {
+                if ($startupTime < $Date) {
                     $validator->errors()->add('depart', "⚠️ L'heure de départ doit être après la date/heure de l’événement.");
                 }
 
-                if ($arrivee) {
-                    $arriveeTime = new \DateTime($eventDate->format('Y-m-d') . ' ' . $arrivee);
-                    if ($arriveeTime < $departTime) {
-                        $validator->errors()->add('arrivee', "⚠️ L'heure d'arrivée doit être après l'heure de départ.");
+                if ($end) {
+                    $endTime = new \DateTime($Date->format('Y-m-d') . ' ' . $end);
+                    if ($endTime < $startupTime) {
+                        $validator->errors()->add('end', "⚠️ L'heure d'arrivée doit être après l'heure de départ.");
                     }
                 }
             }

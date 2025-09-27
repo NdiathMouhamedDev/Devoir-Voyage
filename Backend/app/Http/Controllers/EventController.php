@@ -47,7 +47,6 @@ class EventController extends Controller
         $validatedData = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'category'    => 'required|string|in:' . implode(',', array_keys(Event::CATEGORIES)),
             'location'    => 'required|string',
             'start_at'    => 'required|date',
             'end_at'      => 'required|date|after:start_at',

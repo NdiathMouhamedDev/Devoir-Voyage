@@ -19,7 +19,7 @@ class UserController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'telephone' => 'nullable|string|max:20',
+            'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
         ]);
 

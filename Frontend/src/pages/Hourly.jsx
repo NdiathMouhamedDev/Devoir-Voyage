@@ -7,11 +7,11 @@ export default function Hourly() {
     const [hourly, setHourly] = useState([]);
     const [editId, setEditId] = useState(null);
     const [form, setForm] = useState({
-    titre: "",
-    date_heure: "",
-    lieu: "",
-    depart: "",
-    arrivee: ""
+    title: "",
+    description: "",
+    startup: "",
+    end: "",
+    place: "",
     });
 
 
@@ -35,7 +35,7 @@ export default function Hourly() {
         const newHourly = await createHourly(form);
         setHourly([...hourly, newHourly]);
     }
-    setForm({ titre: "", date_heure: "", lieu: "", depart: "", arrivee: "" });
+    setForm({ title: "",description:"", startup: "", place: "",  end: "" });
     };
 
 
@@ -50,40 +50,40 @@ export default function Hourly() {
     // Préparer édition
     const handleEdit = (hourly) => {
         setForm({
-            titre: hourly.titre || "",
-            date_heure: hourly.date_heure ? hourly.date_heure.slice(0, 16) : "",
-            lieu: hourly.lieu || "",
-            depart: hourly.depart || "",
-            arrivee: hourly.arrivee || ""
+            title: hourly.title || "",
+            description: hourly.description || "",
+            startup: hourly.startup ? hourly.startup.slice(0, 16) : "",
+            end: hourly.end || "",
+            place: hourly.place || "",
         });
 
         setEditId(hourly.id);
     };
 
     const validateForm = () => {
-    const { titre, date_heure, depart, arrivee } = form;
+    const { title, startup, description, end, place } = form;
 
-    if (!titre || !date_heure || !depart) {
+    if (!title || !startup || !end) {
         alert("⚠️ Veuillez remplir au moins Titre, Date et Départ.");
         return false;
     }
 
-    const eventDate = new Date(date_heure);
+    const eventDate = new Date();
     const now = new Date();
     if (eventDate < now) {
         alert("⚠️ La date de l’événement ne peut pas être dans le passé.");
         return false;
     }
 
-    const departDateTime = new Date(`${eventDate.toISOString().split("T")[0]}T${depart}`);
-    if (departDateTime < eventDate) {
+    const startupDateTime = new Date(`${eventDate.toISOString().split("T")[0]}T${startup}`);
+    if (startupDateTime < eventDate) {
         alert("⚠️ L’heure de départ doit être après la date/heure de l’événement.");
         return false;
     }
 
-    if (arrivee) {
-        const arriveeDateTime = new Date(`${eventDate.toISOString().split("T")[0]}T${arrivee}`);
-        if (arriveeDateTime < departDateTime) {
+    if (end) {
+        const endDateTime = new Date(`${eventDate.toISOString().split("T")[0]}T${end}`);
+        if (endDateTime < startupDateTime) {
         alert("⚠️ L’heure d’arrivée doit être après l’heure de départ.");
         return false;
         }
@@ -101,38 +101,39 @@ export default function Hourly() {
                 <input
                     type="text"
                     placeholder="Titre"
-                    name="titre"
+                    name="title"
                     className="input input-bordered w-full"
-                    value={form.titre}
-                    onChange={(e) => setForm({ ...form, titre: e.target.value })}
-                />
-                <input
-                    type="datetime-local"
-                    name="date_heure"
-                    className="input input-bordered"
-                    value={form.date_heure}
-                    onChange={(e) => setForm({ ...form, date_heure: e.target.value })}
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />
                 <input
                     type="text"
-                    name="lieu"
-                    className="input input-bordered"
-                    value={form.lieu}
-                    onChange={(e) => setForm({ ...form, lieu: e.target.value })}
+                    placeholder="Description"
+                    name="description"
+                    className="input input-bordered w-full"
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
                 />
                 <input
-                    type="time"
-                    name="depart"
+                    type="datetime-local"
+                    name="startup"
                     className="input input-bordered"
-                    value={form.depart}
-                    onChange={(e) => setForm({ ...form, depart: e.target.value })}
+                    value={form.startup}
+                    onChange={(e) => setForm({ ...form, startup: e.target.value })}
                 />
                 <input
-                    type="time"
-                    name="arrive"
+                    type="datetime-local"
+                    name="end"
                     className="input input-bordered"
-                    value={form.arrivee}
-                    onChange={(e) => setForm({ ...form, arrivee: e.target.value })}
+                    value={form.end}
+                    onChange={(e) => setForm({ ...form, end: e.target.value })}
+                />
+                <input
+                    type="text"
+                    name="place"
+                    className="input input-bordered"
+                    value={form.place}
+                    onChange={(e) => setForm({ ...form, place: e.target.value })}
                 />
                 <button className="btn btn-primary">
                     {editId ? "Mettre à jour" : "Ajouter"}
@@ -143,8 +144,8 @@ export default function Hourly() {
                 {hourly.map((h) => (
                     <li key={h.id || Math.random()} className="p-3 bg-base-200 rounded-lg shadow flex justify-between items-center">
                         <div>
-                            <strong>{h.titre}</strong> —
-                            {h.date_heure ? new Date(h.date_heure).toLocaleString() : "⏳ En attente"}
+                            <strong>{h.title}</strong> —
+                            {h.startup ? new Date(h.startup).toLocaleString() : "⏳ En attente"}
                         </div>
                         <div className="flex gap-2">
                             <Link to={`/hourly/${h.id}`} className="btn btn-sm btn-info">📖 Détails</Link>

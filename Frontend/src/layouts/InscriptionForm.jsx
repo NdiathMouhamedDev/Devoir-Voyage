@@ -5,7 +5,7 @@ export default function InscriptionForm({ hourly }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    telephone: "",
+    phone_number: "",
     address: "",
     paiement: "cash",
   });
@@ -23,7 +23,7 @@ export default function InscriptionForm({ hourly }) {
           ...prev,
           name: res.data.name || "",
           email: res.data.email || "",
-          telephone: res.data.telephone || "",
+          phone_number: res.data.phone_number || "",
           address: res.data.address || "",
         }));
       })
@@ -43,7 +43,7 @@ export default function InscriptionForm({ hourly }) {
       const res = await api.put("/user", {
         name: form.name,
         email: form.email,
-        telephone: form.telephone,
+        phone_number: form.phone_number,
         address: form.address,
       });
 
@@ -95,8 +95,8 @@ export default function InscriptionForm({ hourly }) {
         <input
           type="text"
           className="input input-bordered w-full"
-          value={form.telephone}
-          onChange={(e) => setForm({ ...form, telephone: e.target.value })}
+          value={form.phone_number}
+          onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
           required
         />
       </div>

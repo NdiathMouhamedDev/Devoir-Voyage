@@ -18,7 +18,7 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         'password',
         'role',
         'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
-        'telephone',
+        'phone_number',
         'address',
         // 'admin_request_status',
         // 'admin_requested_at',

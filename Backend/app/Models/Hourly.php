@@ -8,12 +8,11 @@ class Hourly extends Model
 {
     protected $table = 'hourlies'; // ⚡️ adapte si ta table a un nom différent
     protected $fillable = [
-        'titre',
-        'date_heure',
-        'lieu',
-        'depart',
-        'arrivee',
+        'title',
         'description',
+        'startup',
+        'end',
+        'place',
     ];
 
     public function inscriptions() {

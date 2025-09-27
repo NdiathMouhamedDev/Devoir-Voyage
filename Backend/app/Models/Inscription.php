@@ -29,14 +29,10 @@ class Inscription extends Model
         }
 
         $validated = $request->validate([
-            'telephone' => 'nullable|string',
-            'paiement' => 'required|in:cash,online',
+            'payment' => 'required|in:cash,online',
         ]);
 
-        // 🔹 Mise à jour des infos utilisateur
-        $user->update([
-            'telephone' => $validated['telephone'] ?? $user->telephone,
-        ]);
+        
 
         // Vérifier doublon
         $exists = Inscription::where('user_id', $user->id)

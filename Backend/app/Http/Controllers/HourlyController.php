@@ -9,7 +9,7 @@ class HourlyController extends Controller
 {
     // Liste des horaires
     public function index() {
-        return Hourly::orderBy('date_heure', 'asc')->get();
+        return Hourly::orderBy('startup', 'asc')->get();
     }
 
 
@@ -35,11 +35,11 @@ class HourlyController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'titre' => 'required|string',
-            'date_heure' => 'required|date',
-            'lieu' => 'nullable|string',
-            'depart' => 'required',
-            'arrivee' => 'nullable',
+            'title' => 'required|string',
+            'description' => 'required|string|max:255',
+            'place' => 'string',
+            'startup' => 'required',
+            'end' => 'nullable',
         ]);
 
         $hourly = Hourly::create($validated);
@@ -52,11 +52,11 @@ class HourlyController extends Controller
     public function update(Request $request, Hourly $hourly)
     {
         $validated = $request->validate([
-            'titre' => 'required|string',
-            'date_heure' => 'required|date',
-            'lieu' => 'nullable|string',
-            'depart' => 'required',
-            'arrivee' => 'nullable',
+            'title' => 'required|string',
+            'description' => 'required|date',
+            'place' => 'nullable|string',
+            'startup' => 'required',
+            'end' => 'nullable',
         ]);
 
         

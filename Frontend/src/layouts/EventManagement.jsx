@@ -11,8 +11,8 @@ const EventManagement = () => {
         description: '',
         date: '',
         location: '',
-        price: 0,
-        capacity: 0
+        // price: 0,
+        // capacity: 0
     });
 
     // Charger tous les événements
@@ -55,8 +55,8 @@ const EventManagement = () => {
             description: event.description,
             date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
             location: event.location,
-            price: event.price || 0,
-            capacity: event.capacity || 0
+            // price: event.price || 0,
+            // capacity: event.capacity || 0
         });
         setShowCreateForm(true);
     };
@@ -69,8 +69,8 @@ const EventManagement = () => {
             description: '',
             date: '',
             location: '',
-            price: 0,
-            capacity: 0
+            // price: 0,
+            // capacity: 0
         });
         setShowCreateForm(true);
     };
@@ -104,8 +104,8 @@ const EventManagement = () => {
             description: '',
             date: '',
             location: '',
-            price: 0,
-            capacity: 0
+            // price: 0,
+            // capacity: 0
         });
     };
 
@@ -235,7 +235,7 @@ const EventManagement = () => {
                                 />
                             </div>
                             
-                            <div>
+                            {/* <div>
                                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                                     Prix (€)
                                 </label>
@@ -252,9 +252,9 @@ const EventManagement = () => {
                                         borderRadius: '0.375rem'
                                     }}
                                 />
-                            </div>
+                            </div> */}
                             
-                            <div>
+                            {/* <div>
                                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
                                     Capacité
                                 </label>
@@ -270,7 +270,7 @@ const EventManagement = () => {
                                         borderRadius: '0.375rem'
                                     }}
                                 />
-                            </div>
+                            </div> */}
                         </div>
 
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
