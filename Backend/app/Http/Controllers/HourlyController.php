@@ -12,6 +12,25 @@ class HourlyController extends Controller
         return Hourly::orderBy('date_heure', 'asc')->get();
     }
 
+
+    public function show($id)
+    {
+        $hourly = Hourly::find($id);
+
+        if (!$hourly) {
+            return response()->json([
+                "success" => false,
+                "message" => "Horaire introuvable"
+            ], 404);
+        }
+
+        return response()->json([
+            "success" => true,
+            "data" => $hourly
+        ], 200);
+    }
+
+
     // Ajouter un Hourly
     public function store(Request $request)
     {
@@ -39,6 +58,8 @@ class HourlyController extends Controller
             'depart' => 'required',
             'arrivee' => 'nullable',
         ]);
+
+        
 
         $hourly->update($validated);
 

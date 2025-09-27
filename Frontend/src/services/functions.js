@@ -76,6 +76,16 @@ export const getHourly = async () => {
   }
 };
 
+export const getHourlyById = async (id) => {
+  try {
+    const res = await api.get(`/hourly/${id}`);
+    return res.data.data;
+  } catch (err) {
+    console.error("❌ Erreur getHourlyById:", err.response?.data || err.message);
+  }
+};
+
+
 export const createHourly = async (data) => {
   try{
     const res = await api.post("/hourly", data);
