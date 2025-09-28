@@ -5,11 +5,15 @@ import RegisterEvent from '../layouts/RegisterEvent';
 import AvatarMenu from '../components/miniComponents/AvatarMenu';
 import EventManagement from '../layouts/EventManagement'; // Importer le nouveau composant
 // import Stats from '../layouts/Stats';
-import Hourly from '../layouts/Hourly';
+// import Hourly from '../layouts/Hourly';
+import { useNavigate } from 'react-router-dom';
+import DeconnexionBtn from '../components/miniComponents/DeconnexionBTN';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout } = useAuth();
     const [activeSection, setActiveSection] = useState('overview'); // État pour gérer les sections
+    const navigate = useNavigate()
+
 
     if (loading) {
         return (
@@ -38,7 +42,7 @@ const Dashboard = () => {
                 <h2>🔒 Authentification requise</h2>
                 <p>Vous devez vous connecter pour accéder à cette page.</p>
                 <button 
-                    onClick={() => window.location.href = '/login'}
+                    onClick={() => navigate('/login')}
                     style={{
                         padding: '0.75rem 1.5rem',
                         backgroundColor: '#3b82f6',
@@ -73,7 +77,7 @@ const Dashboard = () => {
                 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
                     <button 
-                        onClick={() => window.location.href = '/'}
+                        onClick={() => navigate('/')}
                         style={{
                             padding: '0.75rem 1.5rem',
                             backgroundColor: '#6b7280',
@@ -86,19 +90,7 @@ const Dashboard = () => {
                         Retour à l'accueil
                     </button>
                     
-                    <button 
-                        onClick={logout}
-                        style={{
-                            padding: '0.75rem 1.5rem',
-                            backgroundColor: '#dc2626',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Se déconnecter
-                    </button>
+                    <DeconnexionBtn />
                 </div>
             </div>
         );
@@ -184,19 +176,7 @@ const Dashboard = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <AvatarMenu />
-                    <button 
-                        onClick={logout}
-                        style={{
-                            padding: '0.5rem 1rem',
-                            backgroundColor: '#ef4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Se déconnecter
-                    </button>
+                    <DeconnexionBtn />
                 </div>
             </div>
 
