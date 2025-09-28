@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('hourlies', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('event_id')->constrained()->onDelete('cascade');
             $table->string('title'); // Ex: "Départ Dakar"
             $table->text('description')->nullable();
             $table->dateTime('startup'); // 
             $table->dateTime('end')->nullable(); // 
             $table->string('place')->nullable(); // Lieu concerné
-            $table->foreignId('event_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

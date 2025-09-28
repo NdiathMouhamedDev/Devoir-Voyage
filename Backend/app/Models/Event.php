@@ -23,7 +23,7 @@ class Event extends Model
      */
     public function interestedUsers()
     {
-        return $this->belongsToMany(User::class, 'event_users',)
+        return $this->belongsToMany(User::class, 'inscriptions','event_id', 'user_id')
                     ->withTimestamps();
     }
 
@@ -67,7 +67,7 @@ class Event extends Model
         return $this->hasMany(Hourly::class);
     }
 
-    public function inscription ()
+    public function inscriptions ()
     {
         return $this->hasMany(Inscription::class);
     }

@@ -13,6 +13,12 @@ class Hourly extends Model
         'startup',
         'end',
         'place',
+        'event_id'
+    ];
+
+    protected $casts = [
+        'startup' => 'datetime',
+        'end' => 'datetime',
     ];
 
     public function inscriptions() {

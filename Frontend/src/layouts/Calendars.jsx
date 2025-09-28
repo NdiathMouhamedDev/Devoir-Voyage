@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { getHourly } from "../services/functions";
+import { recupEvents } from "../services/functions";
 
 export default function Calendars() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    getHourly().then((data) => {
+    recupEvents().then((data) => {
         if(!data) return;
         const formatted = data.map((h) => ({
-            title: h.titre,
-            date: new Date(h.date_heure).toISOString(),
+            title: h.title,
+            date: new Date(h.start_at).toISOString(),
       }));
       setEvents(formatted);
     });

@@ -1,23 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import CategoryBadge from '../components/miniComponents/CategoryBadge';
 import InterestToggleButton from '../components/miniComponents/InterestToggleButton';
 import { recupEventById } from '../services/functions';
 import AvatarMenu from '../components/miniComponents/AvatarMenu';
+import EventHourly from './EventHourly';
+import HourlyDetail from './HourlyDetail';
 
 export default function EventDetails() {
   const { id } = useParams();
-  const [event, setEvent] = useState(null);
+  const [event, setEvent] = useState(null); // 👈 un seul event
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const data = await recupEventById(id);
-        setEvent(data);
+        const res = await recupEventById(id);
+        setEvent(res); // 👈 un seul event
+        console.log("Event récupéré:", res);
       } catch (err) {
-        setError('Impossible de charger les détails de l\'événement');
+        setError("Impossible de charger les détails de l'événement");
         console.error(err);
       } finally {
         setLoading(false);
@@ -47,19 +49,12 @@ export default function EventDetails() {
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute top-4 right-4">
-            <CategoryBadge category={event.category} />
-          </div>
         </div>
 
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <h1 className="text-3xl font-bold">{event.title}</h1>
-            <InterestToggleButton
-              eventId={event.id}
-              initialInterested={event.is_interested}
-              initialCount={event.interested_count}
-            />
+            <InterestToggleButton eventId={id} />
           </div>
 
           <div className="mb-6">
@@ -77,6 +72,8 @@ export default function EventDetails() {
           )}
         </div>
       </div>
+
+      <HourlyDetail />
     </div>
   );
 }

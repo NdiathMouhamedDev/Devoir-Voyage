@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { createEvent } from "../services/functions";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterEvent() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -26,9 +28,8 @@ export default function RegisterEvent() {
     try {
       const data = await createEvent(form);
       console.log("Événement créé :", data);
-      // Redirection ou notification de succès
       alert("✅ Événement créé avec succès !");
-      window.location.href = "/events";
+      navigate("/events");
     } catch (err) {
       console.error("❌ Erreur:", err);
       setError(err.response?.data?.message || "Une erreur est survenue lors de la création de l'événement");

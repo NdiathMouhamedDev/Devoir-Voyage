@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import { useParams } from "react-router-dom";
 
-export default function InscriptionForm({ hourly }) {
+export default function InscriptionForm() {
+  const { id } = useParams();
   const [form, setForm] = useState({
     name: "",
     email: "",
-    telephone: "",
+    phone_number: "",
     address: "",
     paiement: "cash",
   });
@@ -23,7 +25,7 @@ export default function InscriptionForm({ hourly }) {
           ...prev,
           name: res.data.name || "",
           email: res.data.email || "",
-          telephone: res.data.telephone || "",
+          phone_number: res.data.phone_number || "",
           address: res.data.address || "",
         }));
       })
@@ -49,8 +51,8 @@ export default function InscriptionForm({ hourly }) {
     });
 
     // 2. Inscription à l’event
-    const res = await api.post("/inscriptions", {
-      event_id: hourly?.id ?? 1, // ⚠️ passer l’id de l’event courant
+    const res = await api.post(`/inscriptions/${id}`, {
+      event_id: id ?? 1, // ⚠️ passer l’id de l’event courant
       paiement: form.paiement,
     });
 
@@ -102,8 +104,8 @@ export default function InscriptionForm({ hourly }) {
         <input
           type="text"
           className="input input-bordered w-full"
-          value={form.telephone}
-          onChange={(e) => setForm({ ...form, telephone: e.target.value })}
+          value={form.phone_number}
+          onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
           required
         />
       </div>
@@ -133,7 +135,7 @@ export default function InscriptionForm({ hourly }) {
         </select>
       </div>
 
-      <button className="btn btn-primary mt-2">S’inscrire</button>
+      <button className="btn btn-primary mt-2">S'inscrire</button>
       {status && <p className="mt-2 text-sm">{status}</p>}
     </form>
   );

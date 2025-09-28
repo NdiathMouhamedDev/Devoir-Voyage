@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getHourly, createHourly, updateHourly, deleteHourly } from "../services/functions";
-import Calendars from "../layouts/Calendars";
+import Calendars from "./Calendars";
+import RegisterHourly from "./RegisterHourly";
 
 export default function Hourly() {
     const [hourly, setHourly] = useState([]);
@@ -97,48 +98,7 @@ export default function Hourly() {
         <div className="p-4">
             <h2 className="text-xl font-bold mb-4">📅 Gestion des Horaires</h2>
 
-            <form onSubmit={handleSubmit} className="mb-6 flex gap-2">
-                <input
-                    type="text"
-                    placeholder="Titre"
-                    name="title"
-                    className="input input-bordered w-full"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Description"
-                    name="description"
-                    className="input input-bordered w-full"
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                />
-                <input
-                    type="datetime-local"
-                    name="startup"
-                    className="input input-bordered"
-                    value={form.startup}
-                    onChange={(e) => setForm({ ...form, startup: e.target.value })}
-                />
-                <input
-                    type="datetime-local"
-                    name="end"
-                    className="input input-bordered"
-                    value={form.end}
-                    onChange={(e) => setForm({ ...form, end: e.target.value })}
-                />
-                <input
-                    type="text"
-                    name="place"
-                    className="input input-bordered"
-                    value={form.place}
-                    onChange={(e) => setForm({ ...form, place: e.target.value })}
-                />
-                <button className="btn btn-primary">
-                    {editId ? "Mettre à jour" : "Ajouter"}
-                </button>
-            </form>
+            <RegisterHourly />
 
             <ul className="space-y-2">
                 {hourly.map((h) => (

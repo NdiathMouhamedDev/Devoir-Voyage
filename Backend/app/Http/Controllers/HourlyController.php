@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
 use App\Models\Hourly;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,33 @@ class HourlyController extends Controller
         return Hourly::orderBy('startup', 'asc')->get();
     }
 
+    public function storeForEvent(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+
+        // Validation
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'startup' => 'required|date',
+            'end' => 'nullable|date|after_or_equal:startup',
+            'place' => 'nullable|string|max:255',
+        ]);
+
+        // Vérifier si l'event a déjà un planning (optionnel)
+        if ($event->planning) {
+            return response()->json(['message' => 'Cet event a déjà un planning'], 400);
+        }
+
+        $hourly = new Hourly($validated);
+        $hourly->event_id = $event->id;
+        $hourly->save();
+
+        return response()->json([
+            'message' => 'Planning créé avec succès',
+            'planning' => $hourly
+        ], 201);
+    }
 
     public function show($id)
     {
@@ -73,4 +101,16 @@ class HourlyController extends Controller
         $hourly->delete();
         return response()->json(['message' => 'horaire supprimé']);
     }
+
+    public function showByEvent($id)
+    {
+        $hourly = Hourly::where('event_id', $id)->first();
+
+        if (!$hourly) {
+            return response()->json(['message' => 'No planning found'], 404);
+        }
+
+        return response()->json($hourly);
+    }
+
 }
