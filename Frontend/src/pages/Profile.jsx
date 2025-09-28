@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { storageUrl } from '../utils/url';
+import DeconnexionBTN from '../components/miniComponents/DeconnexionBTN';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -189,7 +190,7 @@ export default function Profile() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Mon Profil</h1>
-
+        <DeconnexionBTN/>
         {message && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {message}
