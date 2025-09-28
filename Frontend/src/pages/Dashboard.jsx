@@ -4,7 +4,8 @@ import { useAuth } from '../layouts/UseAuth';
 import RegisterEvent from '../layouts/RegisterEvent';
 import AvatarMenu from '../components/miniComponents/AvatarMenu';
 import EventManagement from '../layouts/EventManagement'; // Importer le nouveau composant
-import Stats from '../layouts/Stats';
+// import Stats from '../layouts/Stats';
+import Hourly from '../layouts/Hourly';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout } = useAuth();
@@ -223,7 +224,6 @@ const Dashboard = () => {
 
             {/* Contenu principal */}
             {renderContent()}
-            <Stats />
 
             {/* Section debug */}
             {process.env.NODE_ENV === 'development' && (

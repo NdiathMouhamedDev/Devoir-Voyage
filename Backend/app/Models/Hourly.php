@@ -13,10 +13,22 @@ class Hourly extends Model
         'startup',
         'end',
         'place',
+        'event_id'
+    ];
+
+    protected $casts = [
+        'startup' => 'datetime',
+        'end' => 'datetime',
     ];
 
     public function inscriptions() {
         return $this->hasMany(Inscription::class);
     }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+
 
 }

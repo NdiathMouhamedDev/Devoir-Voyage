@@ -17,8 +17,9 @@ export async function recupEvents() {
 // 📌 Récupérer un seul événement par ID
 export async function recupEventById(id) {
   try {
-    const res = await api.get(`/events/${id}`);
-    return res.data.data;
+    const res = await api.get(`/event/${id}`);
+    const response = res.data;
+    return response.data;
   } catch (err) {
     console.error("❌ Erreur recupEventById:", err.response?.data || err.message);
     throw err;

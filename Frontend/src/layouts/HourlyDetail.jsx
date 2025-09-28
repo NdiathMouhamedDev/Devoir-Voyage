@@ -28,9 +28,9 @@ export default function HourlyDetail() {
     return `${datePart}T${timeStr}`;
   }
 
-  const start = hourly.date_heure; // si ton backend renvoie ISO
+  const start = hourly.startup; // si ton backend renvoie ISO
   // si arrivee est seulement une heure, on la combine :
-  const end = hourly.arrivee ? mergeDateAndTime(hourly.date_heure, hourly.arrivee) : null;
+  const end = hourly.end ? mergeDateAndTime(hourly.startup, hourly.end) : null;
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -39,10 +39,10 @@ export default function HourlyDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <div className="mb-4 bg-base-200 p-4 rounded-lg shadow">
-            <p><strong>Lieu :</strong> {hourly.lieu || "Non défini"}</p>
+            <p><strong>Lieu :</strong> {hourly.place || "Non défini"}</p>
             <p><strong>Date (start) :</strong> {new Date(start).toLocaleString()}</p>
-            <p><strong>Départ :</strong> {hourly.depart || "—"}</p>
-            <p><strong>Arrivée :</strong> {hourly.arrivee || "—"}</p>
+            <p><strong>Départ :</strong> {hourly.startup || "—"}</p>
+            <p><strong>Arrivée :</strong> {hourly.end || "—"}</p>
             <p className="mt-2 text-sm text-gray-500">{hourly.description}</p>
           </div>
         </div>

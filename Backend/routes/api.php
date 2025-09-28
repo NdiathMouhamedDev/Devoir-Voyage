@@ -133,12 +133,17 @@ Route::middleware('auth:sanctum',)->group(function () {
     Route::apiResource('hourly', HourlyController::class);
 });
 
+Route::get('/events/{id}/hourly', [HourlyController::class, 'showByEvent']);
+Route::post('/events/{id}/hourly', [HourlyController::class, 'storeForEvent']);
+Route::get('/event/{id}', [EventController::class, 'show']);
+
+
 // ----------------------
 // Les inscriptions
 // ----------------------
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/hourly/{id}/inscrire', [InscriptionController::class, 'store']);
-    Route::delete('/hourly/{id}/desinscrire', [InscriptionController::class, 'destroy']);
+    Route::post('/inscriptions/{hourlyId}', [InscriptionController::class, 'store']);
+    Route::delete('/inscriptions/{hourlyId}', [InscriptionController::class, 'destroy']);
 });
 
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import { useParams } from "react-router-dom";
 
-export default function InscriptionForm({ hourly }) {
+export default function InscriptionForm() {
+  const { id } = useParams();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -32,36 +34,43 @@ export default function InscriptionForm({ hourly }) {
 
   // Soumission du formulaire
   async function handleSubmit(e) {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setStatus("⚠️ Vous devez être connecté");
-      return;
-    }
+  e.preventDefault();
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setStatus("⚠️ Vous devez être connecté");
+    return;
+  }
 
-    try {
-      const res = await api.put("/user", {
-        name: form.name,
-        email: form.email,
-        phone_number: form.phone_number,
-        address: form.address,
-      });
+  try {
+    // 1. Mise à jour profil
+    await api.put("/user", {
+      name: form.name,
+      email: form.email,
+      phone_number: form.phone_number,
+      address: form.address,
+    });
 
-      setStatus("✅ Profil mis à jour avec succès !");
-      console.log("Réponse backend:", res.data);
+    // 2. Inscription à l’event
+    const res = await api.post(`/inscriptions/${id}`, {
+      event_id: id ?? 1, // ⚠️ passer l’id de l’event courant
+      paiement: form.paiement,
+    });
 
-    } catch (err) {
-      console.error("Erreur Axios complète:", err);
+    setStatus("✅ Inscription réussie !");
+    console.log("Réponse backend:", res.data);
 
-      if (err.response) {
-        setStatus("❌ " + (err.response.data.message || "Erreur serveur"));
-      } else if (err.request) {
-        setStatus("❌ Pas de réponse du serveur");
-      } else {
-        setStatus("❌ Erreur: " + err.message);
-      }
+  } catch (err) {
+    console.error("Erreur Axios complète:", err);
+    if (err.response) {
+      setStatus("❌ " + (err.response.data.message || "Erreur serveur"));
+    } else if (err.request) {
+      setStatus("❌ Pas de réponse du serveur");
+    } else {
+      setStatus("❌ Erreur: " + err.message);
     }
   }
+}
+
 
 
   return (
@@ -126,7 +135,7 @@ export default function InscriptionForm({ hourly }) {
         </select>
       </div>
 
-      <button className="btn btn-primary mt-2">S’inscrire</button>
+      <button className="btn btn-primary mt-2">S'inscrire</button>
       {status && <p className="mt-2 text-sm">{status}</p>}
     </form>
   );

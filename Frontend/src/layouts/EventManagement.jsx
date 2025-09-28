@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { recupEvents, deleteEvent, updateEvent, createEvent } from '../services/functions';
+import RegisterEvent from './RegisterEvent';
+import { Link } from 'react-router-dom';
 
 const EventManagement = () => {
     const [events, setEvents] = useState([]);
@@ -9,10 +11,9 @@ const EventManagement = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        date: '',
+        start_at:'',
+        end_at:'',
         location: '',
-        // price: 0,
-        // capacity: 0
     });
 
     // Charger tous les événements
@@ -53,10 +54,9 @@ const EventManagement = () => {
         setFormData({
             title: event.title,
             description: event.description,
-            date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
+            start_at: event.start_at,
+            end_at: event.end_at,
             location: event.location,
-            // price: event.price || 0,
-            // capacity: event.capacity || 0
         });
         setShowCreateForm(true);
     };
@@ -67,10 +67,9 @@ const EventManagement = () => {
         setFormData({
             title: '',
             description: '',
-            date: '',
+            start_at:'',
+            end_at: '',
             location: '',
-            // price: 0,
-            // capacity: 0
         });
         setShowCreateForm(true);
     };
@@ -102,10 +101,9 @@ const EventManagement = () => {
         setFormData({
             title: '',
             description: '',
-            date: '',
+            start_at:'',
+            end_at:'',
             location: '',
-            // price: 0,
-            // capacity: 0
         });
     };
 
@@ -150,161 +148,7 @@ const EventManagement = () => {
 
             {/* Formulaire de création/modification */}
             {showCreateForm && (
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '2rem',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                    marginBottom: '2rem',
-                    border: '2px solid #3b82f6'
-                }}>
-                    <h3>{editingEvent ? '✏️ Modifier l\'événement' : '➕ Créer un événement'}</h3>
-                    
-                    <form onSubmit={handleSave} style={{ display: 'grid', gap: '1rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                    Titre *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '0.375rem'
-                                    }}
-                                />
-                            </div>
-                            
-                            <div>
-                                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                    Date *
-                                </label>
-                                <input
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => setFormData({...formData, date: e.target.value})}
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '0.375rem'
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                Description
-                            </label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                                rows={4}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.5rem',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '0.375rem',
-                                    resize: 'vertical'
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                    Lieu
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '0.375rem'
-                                    }}
-                                />
-                            </div>
-                            
-                            {/* <div>
-                                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                    Prix (€)
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value) || 0})}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '0.375rem'
-                                    }}
-                                />
-                            </div> */}
-                            
-                            {/* <div>
-                                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                    Capacité
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={formData.capacity}
-                                    onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '0.375rem'
-                                    }}
-                                />
-                            </div> */}
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                            <button
-                                type="button"
-                                onClick={handleCancel}
-                                style={{
-                                    padding: '0.75rem 1.5rem',
-                                    backgroundColor: '#6b7280',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '0.375rem',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                type="submit"
-                                style={{
-                                    padding: '0.75rem 1.5rem',
-                                    backgroundColor: '#3b82f6',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '0.375rem',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                {editingEvent ? '💾 Sauvegarder' : '✅ Créer'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <RegisterEvent/>
             )}
 
             {/* Liste des événements */}
@@ -378,6 +222,8 @@ const EventManagement = () => {
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '1rem' }}>
+
+
                                     <button
                                         onClick={() => handleEdit(event)}
                                         style={{
@@ -393,7 +239,7 @@ const EventManagement = () => {
                                     >
                                         ✏️ Modifier
                                     </button>
-                                    
+                                    <Link className='btn' to={`/events/${event.id}/hourly`}>Crée un Planning</Link>
                                     <button
                                         onClick={() => handleDelete(event.id)}
                                         style={{

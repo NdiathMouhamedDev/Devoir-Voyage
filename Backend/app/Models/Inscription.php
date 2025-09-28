@@ -1,32 +1,48 @@
 <?php
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Container\Attributes\Auth;
+use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Support\Carbon;
+
 
 class Inscription extends Model
 {
-    protected $fillable = ['user_id', 'hourly_id'];
+
+    use HasFactory;
+    protected $table = 'inscriptions';
+
+    protected $fillable = ['user_id', 'hourly_id', 'event_id'];
 
     public function user() {
         return $this->belongsTo(User::class);
     }
-
+    public function event() {
+        return $this->belongsTo(Event::class);
+    }
     public function hourly() {
         return $this->belongsTo(Hourly::class);
     }
 
+
     public function store(Request $request, $hourlyId)
     {
+          dd($hourlyId, $request->all());
         $user = Auth::user();
         if (!$user) {
             return response()->json(['message' => 'Vous devez être connecté'], 401);
         }
 
         $hourly = Hourly::findOrFail($hourlyId);
+        dd($hourly);
 
-        if (Carbon::now()->greaterThanOrEqualTo($hourly->date_heure)) {
+        // Vérifier si l’événement a déjà commencé
+        if (!empty($hourly->startup) && Carbon::now()->greaterThanOrEqualTo($hourly->startup)) {
             return response()->json(['message' => 'Impossible de s’inscrire, l’événement a déjà commencé'], 403);
         }
+
 
         $validated = $request->validate([
             'payment' => 'required|in:cash,online',

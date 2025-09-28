@@ -58,11 +58,11 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         ])->save();
     }
 
-    public function interestedEvents()
-    {
-        return $this->belongsToMany(Event::class, 'event_user', 'user_id', 'event_id')
-                    ->withTimestamps();
-    }
+    // public function interestedEvents()
+    // {
+    //     return $this->belongsToMany(Event::class, 'user_id', 'event_id')
+    //                 ->withTimestamps();
+    // }
 
     public function inscriptions() {
         return $this->hasMany(Inscription::class);

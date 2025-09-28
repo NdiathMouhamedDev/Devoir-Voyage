@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('end_at');
             $table->string('location')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('event_id')->constrained()->onDelete('cascade');        
             $table->timestamps();
         });
     }

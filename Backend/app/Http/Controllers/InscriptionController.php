@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Hourly;
 use App\Models\Inscription;
+use App\Models\Hourly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -12,19 +12,27 @@ class InscriptionController extends Controller
 {
     public function store(Request $request, $hourlyId)
     {
+        // Debug
+        // dd($hourlyId, $request->all());
+
         $user = Auth::user();
         if (!$user) {
             return response()->json(['message' => 'Vous devez être connecté'], 401);
         }
 
         $hourly = Hourly::findOrFail($hourlyId);
+        // dd($hourly);
 
         // Vérifier si l’événement a déjà commencé
-        if (Carbon::now()->greaterThanOrEqualTo($hourly->date_heure)) {
+        if ($hourly->startup && Carbon::now()->greaterThanOrEqualTo($hourly->startup)) {
             return response()->json(['message' => 'Impossible de s’inscrire, l’événement a déjà commencé'], 403);
         }
 
-        // Vérifier si déjà inscrit
+        $validated = $request->validate([
+            'paiement' => 'required|in:cash,online',
+        ]);
+
+        // Vérifier doublon
         $exists = Inscription::where('user_id', $user->id)
             ->where('hourly_id', $hourly->id)
             ->exists();
@@ -36,27 +44,15 @@ class InscriptionController extends Controller
         $inscription = Inscription::create([
             'user_id' => $user->id,
             'hourly_id' => $hourly->id,
+            'event_id'  => $hourly->event_id,
         ]);
 
         return response()->json([
             'message' => 'Inscription réussie',
-            'data' => $inscription,
+            'data' => [
+                'inscription' => $inscription,
+                'user' => $user
+            ]
         ], 201);
-    }
-
-    public function destroy($hourlyId)
-    {
-        $user = Auth::user();
-        $inscription = Inscription::where('user_id', $user->id)
-            ->where('hourly_id', $hourlyId)
-            ->first();
-
-        if (!$inscription) {
-            return response()->json(['message' => 'Non inscrit'], 404);
-        }
-
-        $inscription->delete();
-
-        return response()->json(['message' => 'Désinscription réussie']);
     }
 }

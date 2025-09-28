@@ -1,5 +1,8 @@
+/* @import '@fullcalendar/core/main.css'; //donne une erreure a regle
+@import '@fullcalendar/daygrid/main.css'; */
 @import "tailwindcss";
 @plugin "daisyui";
+
 
 
 @plugin "daisyui/theme" {
