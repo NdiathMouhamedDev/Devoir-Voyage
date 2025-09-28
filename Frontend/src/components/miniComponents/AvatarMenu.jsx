@@ -35,7 +35,7 @@ export default function AvatarMenu() {
       <img
         src={avatarSrc}
         alt={user.name || 'Profil'}
-        style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '2px solid #e5e7eb' }}
+        style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', border: '2px solid #e5e7eb' }}
       />
       <span style={{ fontSize: 14, color: '#374151' }}>{user.name}</span>
     </button>

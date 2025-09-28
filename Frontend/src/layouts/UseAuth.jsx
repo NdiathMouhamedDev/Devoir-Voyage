@@ -1,6 +1,7 @@
 // hooks/useAuth.js
 import { useState, useEffect, createContext, useContext } from 'react';
 import axios from 'axios';
+import api from '../api';
 
 // Créer le contexte d'authentification
 const AuthContext = createContext();
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }) => {
         const checkAuth = async () => {
             if (token) {
                 try {
-                    const response = await axios.get('http://127.0.0.1:8000/api/user');
+                    const response = await api.get('/user');
                     setUser(response.data);
                 } catch (error) {
                     console.error('Token invalide:', error);
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/login', {
+            const response = await api.post('/login', {
                 email,
                 password
             });
