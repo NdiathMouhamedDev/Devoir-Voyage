@@ -3,25 +3,46 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getHourlyById } from "../services/functions";
 import SmartCountdown from "../components/SmartCountdown";
+import echo from "../../echo";
+import { useAuth } from "../layouts/UseAuth"
+import api from "../api";
 
 export default function HourlyDetail() {
   const { id } = useParams();
   const [hourly, setHourly] = useState(null);
+  const { user } = useAuth();
+
+  const handleSubscribe = async () => {
+    if (!user.email_verified_at) {
+      try {
+        const res = await api.post("/send-verification");
+        alert(res.data.message);
+      } catch (err) {
+        console.error("Erreur envoi vérification email:", err);
+      }
+      return;
+    }
+
+    // email déjà vérifié → abonnement au channel
+    echo.private(`hourly.${hourly.id}`)
+      .listen("HourlyUpdated", (event) => {
+        alert(`Notification hourly ${hourly.id}: ${event.message}`);
+      });
+
+    alert(`Notifications activées pour le hourly ${hourly.id}`);
+  };
 
   useEffect(() => {
     getHourlyById(id).then((res) => {
       if (!res) return;
-      // si ton backend renvoie { success: true, data: hourly } adapte en conséquence
-      const data = res.data ?? res; // tolérance
+
+      const data = res.data ?? res; 
       setHourly(data);
     });
   }, [id]);
 
   if (!hourly) return <div className="p-6">⏳ Chargement...</div>;
 
-  // construire start et end selon ton modèle :
-  // si hourly.date_heure est ISO, on peut l'utiliser directement.
-  // si depart/arrivee sont des times 'HH:mm', on concatène la date.
   function mergeDateAndTime(dateIso, timeStr) {
     if (!dateIso || !timeStr) return null;
     const datePart = new Date(dateIso).toISOString().split("T")[0];
@@ -45,6 +66,9 @@ export default function HourlyDetail() {
             <p><strong>Arrivée :</strong> {hourly.end || "—"}</p>
             <p className="mt-2 text-sm text-gray-500">{hourly.description}</p>
           </div>
+          <button 
+            onClick={handleSubscribe}
+            className="btn btn-accent">Activer notifications</button>
         </div>
 
         <div>

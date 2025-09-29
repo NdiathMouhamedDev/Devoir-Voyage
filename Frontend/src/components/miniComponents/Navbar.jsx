@@ -11,15 +11,15 @@ import { Link } from "react-router-dom";
 export const Navbar = ({ links = [], logo = "Logo",className }) => {
     return (
         <StrictMode>
-            <nav className="center">
-                <div className="navbarp bg-base-200 fixed shadow-sm z-100">
+            <nav style={{margin:"0"}} className="center">
+                <div style={{left:"5vw", width:"90vw"}} className="navbar rounded-3xl bg-base-200 fixed shadow-sm z-100">
                     <div className="navbar-start">
                         <a className="btn btn-ghost text-xl">{logo}</a>
                     </div>
-                    <div className="navbar-center  lg:flex">
-                        <ul className="menu menu-horizontal px-1">
+                    <div className="navbar-center lg:flex">
+                        <ul style={{}} className="menu menu-horizontal inline">
                             {links.map((link) => 
-                                <Link to={link.href} aria-current="page" className={`link `+ className} key={`${link.label}-${link.href}`}>{link.label}
+                                <Link to={link.href} aria-current="page" style={{margin:"0 1.2rem"}} className={` `+ className} key={`${link.label}-${link.href}`}>{link.label}
                                 </Link>
                             )}
                         </ul>

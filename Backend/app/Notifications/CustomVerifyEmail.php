@@ -37,7 +37,7 @@ class AdminRequestNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Demande de rôle Administrateur')
             ->greeting('Bonjour ' . $notifiable->name . ' !')
-            ->line('Vous avez demandé à devenir administrateur de notre plateforme.')
+            ->line('Vous avez demandé de recevoir des notification depuis notre plateforme.')
             ->line('Pour confirmer votre demande et obtenir les privilèges administrateur, cliquez sur le bouton ci-dessous :')
             ->action('Confirmer la demande Admin', $this->verificationUrl)
             ->line('⚠️ **Important** : Ce lien expire dans 24 heures.')

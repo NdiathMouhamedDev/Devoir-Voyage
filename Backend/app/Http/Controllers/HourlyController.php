@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Hourly;
+use App\Events\HourlyUpdated;
 use Illuminate\Http\Request;
 
 class HourlyController extends Controller
@@ -87,7 +88,10 @@ class HourlyController extends Controller
             'end' => 'nullable',
         ]);
 
-        
+        $planning = hourly::findOrFail($id);
+        $planning->update($request->all());
+
+        broadcast(new HourlyUpdated($hourly->id, "Le planning a été mis à jour !"))->toOthers();
 
         $hourly->update($validated);
 

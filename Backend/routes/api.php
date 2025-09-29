@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
@@ -109,10 +110,37 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 });
 
 // ---------------------------------
-// Routes de vérification d'email - DÉSACTIVÉES
-// --------------------------------
+// Routes de vérification d'email
+// ---------------------------------
 
-// // Routes de vérification d'email sont supprimées pour l'instant
+// 📌 Envoi du mail de vérification quand le user clique sur ton bouton
+Route::post('/send-verification', function (Request $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email déjà vérifié']);
+    }
+
+    $request->user()->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Email de vérification envoyé']);
+})->middleware('auth:sanctum')->name('verification.custom-send');
+
+// 📌 Vérification de l'email (lien cliqué dans l'email reçu)
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill(); // marque l’email comme vérifié
+    return response()->json(['message' => 'Email vérifié avec succès']);
+})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+
+// 📌 Redemander l’envoi (si le lien a expiré)
+Route::post('/email/verification-notification', function (Request $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email déjà vérifié']);
+    }
+
+    $request->user()->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Lien de vérification envoyé']);
+})->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
+
 
 // -------------------------
 // Routes Profile

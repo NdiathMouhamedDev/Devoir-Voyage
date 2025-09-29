@@ -11,8 +11,8 @@ export default function Header() {
     return (
         <StrictMode>
             <header className="bg-blue-600 text-white p-4">
-            <Navbar brand="Devoir" links={menu} userMenu="Bismillah" />
-        </header>
+                <Navbar className="w-full" brand="Devoir" links={menu} userMenu="Bismillah" />
+            </header>
         </StrictMode>
     );
 } 
