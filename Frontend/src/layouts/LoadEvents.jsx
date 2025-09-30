@@ -25,6 +25,21 @@ export default function LoadEvents() {
     }
   };
 
+  const handleSubscribe = async () => {
+    const now = new Date();
+    const startDate = new Date(events.map((event)=>(event.start_at)));
+    console.log(startDate);
+    console.log(now)
+
+    // ⛔ si l'événement a déjà commencé, on bloque
+    if (startDate <= now) {
+      alert("Impossible de s'abonner : le planning a déjà commencé ou est passé.");
+      return;
+    }else{
+      navigate(`/hourly/${events.map((event)=>(event.id))}/inscrire`)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-base-200">
@@ -192,8 +207,8 @@ export default function LoadEvents() {
                       />
                     </svg>
                   </button>
-                  <Link
-                    to={`/hourly/${event.id}/inscrire`}
+                  <button
+                    onClick={handleSubscribe}
                     className="btn btn-secondary btn-sm w-full gap-2"
                   >
                     <svg
@@ -211,7 +226,7 @@ export default function LoadEvents() {
                       />
                     </svg>
                     S'inscrire
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>

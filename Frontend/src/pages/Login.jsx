@@ -21,13 +21,15 @@ export default function Login() {
     setError("");
 
     try {
+      
       const res = await api.post("/login", form);
       const { token, user } = res.data;
 
       // Sauvegarder token + id
       localStorage.setItem("token", token);
       localStorage.setItem("user_id", user.id);
-
+      localStorage.setItem("user", JSON.stringify(user));
+      
       console.log("Connexion réussie:", user);
       
       // Redirection selon le rôle
@@ -102,10 +104,10 @@ export default function Login() {
             )}
 
             {/* Formulaire */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 ">
               
               {/* Email */}
-              <div className="form-control">
+              <div className="form-control mx-10">
                 <label className="label">
                   <span className="label-text font-semibold">Email</span>
                 </label>
@@ -137,7 +139,7 @@ export default function Login() {
               </div>
 
               {/* Mot de passe */}
-              <div className="form-control">
+              <div className="form-control mx-10">
                 <label className="label">
                   <span className="label-text font-semibold">Mot de passe</span>
                 </label>
@@ -190,17 +192,17 @@ export default function Login() {
               </div>
 
               {/* Remember me */}
-              <div className="form-control">
+              {/* <div className="form-control">
                 <label className="label cursor-pointer justify-start gap-2">
                   <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" />
                   <span className="label-text">Se souvenir de moi</span>
                 </label>
-              </div>
+              </div> */}
 
               {/* Bouton de connexion */}
               <button 
                 type="submit" 
-                className="btn btn-primary w-full"
+                className="btn btn-primary w-full "
                 disabled={loading}
               >
                 {loading ? (

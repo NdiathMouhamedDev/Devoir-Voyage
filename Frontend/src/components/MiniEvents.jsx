@@ -30,58 +30,33 @@ function InterestToggleButton({ eventId, initialInterested = false, initialCount
   };
 
   return (
-    <div className="flex items-center gap-2">
-      {token ? (
-        <button
-          onClick={handleToggleInterest}
-          disabled={loading}
-          className={`btn btn-sm gap-2 ${
-            isInterested ? 'btn-error btn-outline' : 'btn-success btn-outline'
-          }`}
-        >
-          {loading ? (
-            <span className="loading loading-spinner loading-xs"></span>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill={isInterested ? "currentColor" : "none"}
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          )}
-          <span className="badge badge-sm">{interestedCount}</span>
-        </button>
+    <button
+      onClick={handleToggleInterest}
+      disabled={loading || !token}
+      className={`btn btn-sm gap-2 ${
+        isInterested ? 'btn-error btn-outline' : 'btn-success btn-outline'
+      }`}
+    >
+      {loading ? (
+        <span className="loading loading-spinner loading-xs"></span>
       ) : (
-        <button
-          onClick={() => window.location.href = '/login'}
-          className="btn btn-sm btn-outline gap-2"
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill={isInterested ? "currentColor" : "none"}
+          viewBox="0 0 24 24"
+          stroke="currentColor"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-          <span className="badge badge-sm">{interestedCount}</span>
-        </button>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
       )}
-    </div>
+      <span className="badge badge-sm">{interestedCount}</span>
+    </button>
   );
 }
 
@@ -93,7 +68,7 @@ export default function MiniEvents() {
     try {
       const res = await api.get('/events/public');
       const allEvents = Array.isArray(res.data) ? res.data : res.data.data || [];
-      setEvents(allEvents.slice(0, 5));
+      setEvents(allEvents.slice(0, 6));
     } catch (err) {
       console.error("Erreur lors du chargement des événements:", err);
       setEvents([]);
@@ -115,66 +90,111 @@ export default function MiniEvents() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-      </div>
+      <section id="events" className="py-16 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+          </div>
+        </div>
+      </section>
     );
   }
 
   if (!events.length) {
     return (
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body items-center text-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-16 w-16 text-base-content/20"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-          <p className="text-base-content/70">Aucun événement disponible</p>
+      <section id="events" className="py-16 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="card bg-base-100 shadow-xl max-w-md mx-auto">
+            <div className="card-body items-center text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-16 w-16 text-base-content/20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-base-content/70">Aucun événement disponible</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div id="events" className="space-y-4 w-full max-w-2xl mx-auto">
-      {events.map(event => (
-        <div key={event.id} className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow border border-base-300">
-          <div className="card-body">
-            <div className="flex flex-col sm:flex-row justify-between gap-4">
-              <div className="flex-1">
-                <h3 className="card-title text-base-content mb-2">{event.title}</h3>
-                
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <div className="badge badge-primary badge-outline gap-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-3 w-3"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    {formatDate(event.date)}
-                  </div>
+    <section id="events" className="py-16 bg-base-200">
+      <div className="container mx-auto px-4">
+        {/* Header de la section */}
+        <div className="text-center mb-12">
+          <div className="badge badge-primary badge-lg mb-4">Événements</div>
+          <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-4">
+            Découvrez nos prochains événements
+          </h2>
+          <p className="text-base-content/70 text-lg max-w-2xl mx-auto">
+            Rejoignez-nous pour des moments inoubliables et des expériences enrichissantes
+          </p>
+        </div>
+
+        {/* Carousel d'événements */}
+        <div className="relative">
+          {/* Grid responsive avec scroll horizontal sur mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {events.map(event => (
+              <div 
+                key={event.id} 
+                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+              >
+                {/* Image de l'événement */}
+                <figure className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+                  {event.image ? (
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-20 w-20 text-base-content/20"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                  )}
                   
-                  {event.location && (
-                    <div className="badge badge-secondary badge-outline gap-1">
+                  {/* Badge catégorie en overlay */}
+                  {event.category && (
+                    <div className="absolute top-3 right-3">
+                      <div className="badge badge-primary">{event.category}</div>
+                    </div>
+                  )}
+                </figure>
+
+                <div className="card-body">
+                  {/* Titre */}
+                  <h3 className="card-title text-lg line-clamp-2 min-h-[3.5rem]">
+                    {event.title}
+                  </h3>
+
+                  {/* Badges date et localisation */}
+                  <div className="flex flex-wrap gap-2 my-3">
+                    <div className="badge badge-outline gap-1">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-3 w-3"
@@ -186,55 +206,105 @@ export default function MiniEvents() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
+                      </svg>
+                      {formatDate(event.date || event.start_at)}
+                    </div>
+                    
+                    {event.location && (
+                      <div className="badge badge-outline gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        <span className="truncate max-w-[120px]">{event.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {event.description && (
+                    <p className="text-sm text-base-content/70 line-clamp-3 mb-4 min-h-[4.5rem]">
+                      {event.description}
+                    </p>
+                  )}
+
+                  {/* Actions */}
+                  <div className="card-actions justify-between items-center mt-auto pt-4 border-t border-base-300">
+                    <InterestToggleButton
+                      eventId={event.id}
+                      initialInterested={event.is_interested}
+                      initialCount={event.interested_count}
+                    />
+                    
+                    <a 
+                      href={`/event/${event.id}`} 
+                      className="btn btn-primary btn-sm gap-2"
+                    >
+                      Voir plus
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          d="M9 5l7 7-7 7"
                         />
                       </svg>
-                      {event.location}
-                    </div>
-                  )}
+                    </a>
+                  </div>
                 </div>
-                
-                {event.description && (
-                  <p className="text-sm text-base-content/70 line-clamp-2">
-                    {event.description}
-                  </p>
-                )}
               </div>
-              
-              <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2">
-                <InterestToggleButton
-                  eventId={event.id}
-                  initialInterested={event.is_interested}
-                  initialCount={event.interested_count}
-                />
-                <a href={`/event/${event.id}`} className="btn btn-sm btn-ghost">
-                  Voir plus
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </a>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
+
+        {/* Bouton voir tous les événements */}
+        <div className="text-center mt-12">
+          <a 
+            href="/events" 
+            className="btn btn-primary btn-lg gap-2"
+          >
+            Voir tous les événements
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
   );
 }

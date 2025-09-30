@@ -107,7 +107,7 @@ export default function RegisterEvent({ onSuccess }) {
             <span className="label-text font-medium">Date et heure de début</span>
           </label>
           <input
-            type="datetime-local"
+            type="date"
             name="start_at"
             required
             className="input input-bordered"
@@ -121,7 +121,7 @@ export default function RegisterEvent({ onSuccess }) {
             <span className="label-text font-medium">Date et heure de fin</span>
           </label>
           <input
-            type="datetime-local"
+            type="date"
             name="end_at"
             required
             className="input input-bordered"

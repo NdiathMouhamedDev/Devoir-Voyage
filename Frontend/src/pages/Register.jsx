@@ -10,7 +10,7 @@ export default function Register() {
     password: '',
     password_confirmation: ''
   });
-  
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +23,7 @@ export default function Register() {
       ...formData,
       [e.target.name]: e.target.value
     });
-    
+
     // Effacer l'erreur pour ce champ
     if (errors[e.target.name]) {
       setErrors({
@@ -41,9 +41,9 @@ export default function Register() {
 
     try {
       const response = await api.post('/register', formData);
-      
+
       console.log('Full response:', response);
-      
+
       let data;
       if (response.data) {
         data = response.data;
@@ -53,20 +53,21 @@ export default function Register() {
 
       if (isSuccess && data.access_token) {
         console.log('Registration successful:', data);
-        
+
         // Sauvegarder le token
         localStorage.setItem('token', data.access_token);
+        localStorage.setItem('user_id', JSON.stringify(data.user.id));
         localStorage.setItem('user', JSON.stringify(data.user));
-        
+
         setSuccess(true);
-        
+
         console.log('About to navigate to /events');
-        
+
         setTimeout(() => {
           console.log('Executing navigation to /events');
           navigate('/events', { replace: true });
         }, 2000);
-        
+
       } else {
         console.error('Registration failed:', data);
         if ((response.status === 422 || data.errors) && data.errors) {
@@ -75,7 +76,7 @@ export default function Register() {
           setErrors({ general: data.message || 'Erreur lors de l\'inscription' });
         }
       }
-      
+
     } catch (error) {
       console.error('Registration error:', error);
       setErrors({ general: 'Erreur de connexion au serveur' });
@@ -104,7 +105,7 @@ export default function Register() {
               <span className="loading loading-dots loading-md text-primary"></span>
               <span className="text-sm text-base-content/60">Redirection en cours...</span>
             </div>
-            <button 
+            <button
               className="btn btn-primary btn-sm mt-4"
               onClick={() => navigate('/events')}
             >
@@ -119,11 +120,11 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        
+
         {/* Card principale */}
         <div className="card bg-base-100 shadow-2xl">
           <div className="card-body">
-            
+
             {/* En-tête */}
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
@@ -149,9 +150,9 @@ export default function Register() {
 
             {/* Formulaire */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              
+
               {/* Nom */}
-              <div className="form-control">
+              <div className="form-control mx-10">
                 <label className="label">
                   <span className="label-text font-semibold">Nom complet</span>
                 </label>
@@ -175,7 +176,7 @@ export default function Register() {
               </div>
 
               {/* Email */}
-              <div className="form-control">
+              <div className="form-control mx-10">
                 <label className="label">
                   <span className="label-text font-semibold">Adresse email</span>
                 </label>
@@ -200,7 +201,7 @@ export default function Register() {
               </div>
 
               {/* Mot de passe */}
-              <div className="form-control">
+              <div className="form-control mx-10">
                 <label className="label">
                   <span className="label-text font-semibold">Mot de passe</span>
                 </label>
@@ -240,7 +241,7 @@ export default function Register() {
               </div>
 
               {/* Confirmation mot de passe */}
-              <div className="form-control">
+              <div className="form-control mx-10">
                 <label className="label">
                   <span className="label-text font-semibold">Confirmer le mot de passe</span>
                 </label>
@@ -278,51 +279,51 @@ export default function Register() {
 
               {/* Force du mot de passe */}
               {formData.password && (
-                <div className="form-control">
+                <div className="form-control mx-10">
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-base-content/60">Force:</span>
-                    <progress 
-                      className={`progress w-32 ${
-                        formData.password.length < 8 ? 'progress-error' :
-                        formData.password.length < 12 ? 'progress-warning' :
-                        'progress-success'
-                      }`}
-                      value={Math.min(formData.password.length * 8, 100)} 
+                    <progress
+                      className={`progress w-32 ${formData.password.length < 8 ? 'progress-error' :
+                          formData.password.length < 12 ? 'progress-warning' :
+                            'progress-success'
+                        }`}
+                      value={Math.min(formData.password.length * 8, 100)}
                       max="100"
                     ></progress>
-                    <span className={`badge badge-sm ${
-                      formData.password.length < 8 ? 'badge-error' :
-                      formData.password.length < 12 ? 'badge-warning' :
-                      'badge-success'
-                    }`}>
+                    <span className={`badge badge-sm ${formData.password.length < 8 ? 'badge-error' :
+                        formData.password.length < 12 ? 'badge-warning' :
+                          'badge-success'
+                      }`}>
                       {formData.password.length < 8 ? 'Faible' :
-                       formData.password.length < 12 ? 'Moyen' :
-                       'Fort'}
+                        formData.password.length < 12 ? 'Moyen' :
+                          'Fort'}
                     </span>
                   </div>
                 </div>
               )}
 
               {/* Bouton d'inscription */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn btn-primary w-full"
-              >
-                {loading ? (
-                  <>
-                    <span className="loading loading-spinner"></span>
-                    Inscription en cours...
-                  </>
-                ) : (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                    S'inscrire
-                  </>
-                )}
-              </button>
+              <div className='w-full text-center'>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn btn-primary w-auto"
+                >
+                  {loading ? (
+                    <>
+                      <span className="loading loading-spinner"></span>
+                      Inscription en cours...
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      </svg>
+                      S'inscrire
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
 
             {/* Divider */}
@@ -332,7 +333,7 @@ export default function Register() {
             <div className="text-center">
               <p className="text-sm text-base-content/60">
                 Déjà un compte ?{' '}
-                <button 
+                <button
                   onClick={() => navigate('/login')}
                   className="link link-primary font-semibold"
                 >
@@ -347,18 +348,18 @@ export default function Register() {
         <div className="card bg-base-100 shadow-lg mt-4">
           <div className="card-body py-3">
             <div className="flex items-start gap-3">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-5 w-5 text-info shrink-0 mt-0.5" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-info shrink-0 mt-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
               <p className="text-sm text-base-content/70">

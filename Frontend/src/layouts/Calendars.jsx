@@ -1,14 +1,15 @@
-// Calendars.jsx
 import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { recupEvents } from "../services/functions";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Calendars() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const loadEvents = async () => {
       try {
@@ -41,18 +42,14 @@ export default function Calendars() {
 
   const getEventColor = (category) => {
     const colors = {
-      religious: 'oklch(72% 0.219 149.579)', // primary
-      cultural: 'oklch(38% 0.063 188.416)',  // secondary
-      social: 'oklch(60% 0.25 292.717)',     // accent
-      educational: 'oklch(68% 0.169 237.323)', // info
-      default: 'oklch(72% 0.219 149.579)',   // primary
+      default: 'primary',
     };
-    return colors[category] || colors.default;
+    return colors[category] ;
   };
 
   const handleEventClick = (info) => {
     const event = info.event;
-    window.location.href = `/event/${event.id}`;
+    navigate(`/event/${event.id}`);
   };
 
   if (loading) {

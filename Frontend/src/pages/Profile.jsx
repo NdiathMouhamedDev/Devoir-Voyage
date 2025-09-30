@@ -321,7 +321,7 @@ export default function Profile() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="form-control">
+                    <div className="form-control  mx-5">
                       <label className="label">
                         <span className="label-text font-semibold">Nom complet</span>
                       </label>
@@ -335,7 +335,7 @@ export default function Profile() {
                       />
                     </div>
 
-                    <div className="form-control">
+                    <div className="form-control  mx-5">
                       <label className="label">
                         <span className="label-text font-semibold">Email</span>
                       </label>
@@ -351,7 +351,7 @@ export default function Profile() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="form-control">
+                    <div className="form-control  mx-5">
                       <label className="label">
                         <span className="label-text font-semibold">Téléphone</span>
                       </label>
@@ -365,7 +365,7 @@ export default function Profile() {
                       />
                     </div>
 
-                    <div className="form-control">
+                    <div className="form-control  mx-5">
                       <label className="label">
                         <span className="label-text font-semibold">Adresse</span>
                       </label>
@@ -380,7 +380,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="form-control">
+                  <div className="form-control  mx-5">
                     <label className="label">
                       <span className="label-text font-semibold">Biographie</span>
                     </label>
@@ -418,7 +418,7 @@ export default function Profile() {
                 Changer le mot de passe
               </h2>
               <form onSubmit={handlePasswordChange} className="space-y-4">
-                <div className="form-control">
+                <div className="form-control  mx-2">
                   <label className="label">
                     <span className="label-text font-semibold">Mot de passe actuel</span>
                   </label>
@@ -432,7 +432,7 @@ export default function Profile() {
                   />
                 </div>
 
-                <div className="form-control">
+                <div className="form-control  mx-2">
                   <label className="label">
                     <span className="label-text font-semibold">Nouveau mot de passe</span>
                   </label>
@@ -450,7 +450,7 @@ export default function Profile() {
                   </label>
                 </div>
 
-                <div className="form-control">
+                <div className="form-control  mx-2  mx-5">
                   <label className="label">
                     <span className="label-text font-semibold">Confirmer le mot de passe</span>
                   </label>

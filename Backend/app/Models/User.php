@@ -7,7 +7,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail; 
-use App\Notifications\CustomVerifyEmail;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
+
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -61,14 +64,20 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new CustomVerifyEmail);
+        $this->notify(new class extends VerifyEmail {
+            protected function verificationUrl($notifiable)
+            {
+                return URL::temporarySignedRoute(
+                    'verification.verify',
+                    Carbon::now()->addMinutes(60),
+                    [
+                        'id' => $notifiable->getKey(),
+                        'hash' => sha1($notifiable->getEmailForVerification()),
+                    ]
+                );
+            }
+        });
     }
-
-    // public function interestedEvents()
-    // {
-    //     return $this->belongsToMany(Event::class, 'user_id', 'event_id')
-    //                 ->withTimestamps();
-    // }
 
     public function inscriptions() {
         return $this->hasMany(Inscription::class);

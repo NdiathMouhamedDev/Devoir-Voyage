@@ -12,6 +12,7 @@ use App\Http\Controllers\HourlyController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Models\User;
 
 
 
@@ -125,10 +126,25 @@ Route::post('/send-verification', function (Request $request) {
 })->middleware('auth:sanctum')->name('verification.custom-send');
 
 // 📌 Vérification de l'email (lien cliqué dans l'email reçu)
+
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); 
-    return response()->json(['message' => 'Email vérifié avec succès']);
-})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+    $user = User::find($request->route('id'));
+
+    if (!$user) {
+        return redirect(config('app.frontend_url') . '/verify-email?status=user_not_found');
+    }
+
+    if ($user->hasVerifiedEmail()) {
+        return redirect(config('app.frontend_url') . '/verify-email?status=already');
+    }
+
+    if ($request->hasValidSignature()) {
+        $user->markEmailAsVerified();
+        return redirect(config('app.frontend_url') . '/verify-email?status=success');
+    }
+
+    return redirect(config('app.frontend_url') . '/verify-email?status=invalid');
+})->name('verification.verify');
 
 // 📌 Redemander l’envoi (si le lien a expiré)
 Route::post('/email/verification-notification', function (Request $request) {

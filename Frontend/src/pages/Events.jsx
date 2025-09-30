@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import LoadEvents from "../layouts/LoadEvents";
 import AvatarMenu from "../components/miniComponents/AvatarMenu";
 import DeconnexionBTN from "../components/miniComponents/DeconnexionBTN";
+import Calendars from "../layouts/Calendars"
 
 export default function Events() {
     const [viewMode, setViewMode] = useState('grid');
@@ -138,12 +139,13 @@ export default function Events() {
                                 <span className="text-primary">📋</span>
                                 Liste des événements
                             </h2>
-                            <div className="badge badge-lg badge-primary">
+                            {/* <div className="badge badge-lg badge-primary">
                                 {searchTerm ? 'Résultats filtrés' : 'Tous les événements'}
-                            </div>
+                            </div> */}
                         </div>
                         <LoadEvents />
                     </div>
+                    <Calendars />
                 </div>
 
                 {/* Pagination */}
@@ -169,7 +171,7 @@ export default function Events() {
                 </div> */}
 
                 {/* Quick Actions FAB */}
-                <div className="fixed bottom-6 right-6 z-50">
+                {/* <div className="fixed bottom-6 right-6 z-50">
                     <div className="dropdown dropdown-top dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-circle btn-primary btn-lg shadow-2xl">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,7 +206,7 @@ export default function Events() {
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

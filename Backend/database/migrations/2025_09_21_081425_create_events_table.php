@@ -15,11 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->dateTime('start_at');
-            $table->dateTime('end_at');
+            $table->date('start_at');
+            $table->date('end_at');
             $table->string('location')->nullable();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('event_id')->constrained()->onDelete('cascade');        
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');    
             $table->timestamps();
         });
     }

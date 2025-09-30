@@ -1,7 +1,5 @@
 @import "tailwindcss";
 @plugin "daisyui";
-@import '@fullcalendar/core/index.css';
-@import '@fullcalendar/daygrid/index.css';
 
 
 

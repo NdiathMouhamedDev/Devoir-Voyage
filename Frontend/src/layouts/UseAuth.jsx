@@ -3,12 +3,13 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import axios from 'axios';
 import api from '../api';
 
-// Créer le contexte d'authentification
 const AuthContext = createContext();
 
-// Provider d'authentification
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(localStorage.getItem('token'));
 
@@ -28,6 +29,9 @@ export const AuthProvider = ({ children }) => {
                 try {
                     const response = await api.get('/user');
                     setUser(response.data);
+
+                    // 🔒 synchro avec localStorage
+                    localStorage.setItem('user', JSON.stringify(response.data));
                 } catch (error) {
                     console.error('Token invalide:', error);
                     logout();
@@ -41,17 +45,17 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await api.post('/login', {
-                email,
-                password
-            });
+            const response = await api.post('/login', { email, password });
 
-            const { access_token, user: userData } = response.data;
-            
+            const { token: access_token, user: userData } = response.data;
+
             setToken(access_token);
             setUser(userData);
+
+            // 🔒 Sauvegarder token + user
             localStorage.setItem('token', access_token);
-            
+            localStorage.setItem('user', JSON.stringify(userData));
+
             return { success: true, user: userData };
         } catch (error) {
             console.error('Erreur de connexion:', error);
@@ -66,6 +70,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
     };
 
@@ -84,13 +89,12 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         isAdmin,
-        isAuthenticated
+        isAuthenticated,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Hook pour utiliser l'authentification
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
