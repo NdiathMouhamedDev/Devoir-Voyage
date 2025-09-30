@@ -1,64 +1,8 @@
 import { useState, useEffect } from "react";
 import api from "../api";
+import InterestToggleButton from "./miniComponents/InterestToggleButton";
 
-function InterestToggleButton({ eventId, initialInterested = false, initialCount = 0 }) {
-  const [isInterested, setIsInterested] = useState(initialInterested);
-  const [interestedCount, setInterestedCount] = useState(initialCount);
-  const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem('token');
 
-  const handleToggleInterest = async () => {
-    if (!token) {
-      alert("Vous devez être connecté pour marquer votre intérêt");
-      window.location.href = '/login';
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = isInterested
-        ? await api.delete(`/events/${eventId}/interested`)
-        : await api.post(`/events/${eventId}/interested`);
-      setIsInterested(response.data.is_interested);
-      setInterestedCount(response.data.interested_count);
-    } catch (error) {
-      console.error("Erreur lors du toggle d'intérêt:", error);
-      alert(error.response?.data?.message || "Une erreur s'est produite");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <button
-      onClick={handleToggleInterest}
-      disabled={loading || !token}
-      className={`btn btn-sm gap-2 ${
-        isInterested ? 'btn-error btn-outline' : 'btn-success btn-outline'
-      }`}
-    >
-      {loading ? (
-        <span className="loading loading-spinner loading-xs"></span>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          fill={isInterested ? "currentColor" : "none"}
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-          />
-        </svg>
-      )}
-      <span className="badge badge-sm">{interestedCount}</span>
-    </button>
-  );
-}
 
 export default function MiniEvents() {
   const [events, setEvents] = useState([]);

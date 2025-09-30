@@ -14,7 +14,7 @@ class Inscription extends Model
     use HasFactory;
     protected $table = 'inscriptions';
 
-    protected $fillable = ['user_id', 'hourly_id', 'event_id'];
+    protected $fillable = ['user_id', 'hourly_id', 'event_id','statuts', 'payment', 'phone_number', 'address'];
 
     public function user() {
         return $this->belongsTo(User::class);

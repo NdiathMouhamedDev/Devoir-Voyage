@@ -17,11 +17,12 @@ export default function VerifyEmail() {
       <h1 className="text-2xl font-bold mb-4">Vérification d'email</h1>
       <p className="mb-4">{messages[status] || "⏳ Vérification en cours..."}</p>
       <button
-        onClick={() => navigate("/login")}
+        onClick={() => navigate("/events")}
         className="btn btn-primary"
       >
-        Aller à la connexion
+        Aller au Événements
       </button>
+      
     </div>
   );
 }

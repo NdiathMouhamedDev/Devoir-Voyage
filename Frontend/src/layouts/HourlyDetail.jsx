@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getHourlyByEvent } from "../services/functions";
 import SmartCountdown from "../components/SmartCountdown";
 import echo from "../../echo";
@@ -9,10 +9,12 @@ import api from "../api";
 export default function HourlyDetail() {
   const { id } = useParams();
   const [hourly, setHourly] = useState(null);
-  const [subscribed, setSubscribed] = useState(false);
+  const [subscribedHourlies, setSubscribedHourlies] = useState({}); // ✅ Objet au lieu de boolean
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubscribe = async (hourlyItem) => {
+    
     const now = new Date();
     const startDate = new Date(hourlyItem.startup);
     
@@ -36,12 +38,17 @@ export default function HourlyDetail() {
       return;
     }
 
+    navigate(`/hourly/${hourlyItem.id}/inscrire`);
     // S'abonner aux notifications WebSocket
     echo.private(`hourly.${hourlyItem.id}`).listen("HourlyUpdated", (event) => {
       alert(`Notification ${hourlyItem.title} : ${event.message}`);
     });
 
-    setSubscribed(true);
+    // ✅ Marquer seulement CET horaire comme abonné
+    setSubscribedHourlies(prev => ({
+      ...prev,
+      [hourlyItem.id]: true
+    }));
   };
 
   useEffect(() => {
@@ -63,7 +70,6 @@ export default function HourlyDetail() {
   return (
     <div className="space-y-6">
       {hourly.map((h) => {
-        // Formater les dates pour l'affichage uniquement
         const startDisplay = new Date(h.startup).toLocaleDateString("fr-FR", {
           day: "2-digit",
           month: "2-digit",
@@ -79,6 +85,9 @@ export default function HourlyDetail() {
           hour: "2-digit",
           minute: "2-digit"
         }) : null;
+
+        // ✅ Vérifier si CET horaire spécifique est abonné
+        const isSubscribed = subscribedHourlies[h.id] || false;
 
         return (
           <div key={h.id || `hourly-${Math.random()}`} className="card bg-base-100 shadow-xl">
@@ -171,10 +180,10 @@ export default function HourlyDetail() {
 
                   <button
                     onClick={() => handleSubscribe(h)}
-                    disabled={subscribed}
-                    className={`btn w-full gap-2 ${subscribed ? 'btn-success' : 'btn-accent'}`}
+                    disabled={isSubscribed} // ✅ Utiliser l'état spécifique à cet horaire
+                    className={`btn w-full gap-2 ${isSubscribed ? 'btn-success' : 'btn-accent'}`}
                   >
-                    {subscribed ? (
+                    {isSubscribed ? ( // ✅ Utiliser l'état spécifique à cet horaire
                       <>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -215,7 +224,6 @@ export default function HourlyDetail() {
                 </div>
 
                 <div className="flex items-center justify-center">
-                  {/* ✅ Passer les dates brutes (format MySQL/Laravel) */}
                   <SmartCountdown 
                     start={h.startup} 
                     end={h.end} 

@@ -89,6 +89,7 @@ Route::middleware(['auth:sanctum',])->group(function () {
 //-------------------------------- 
 // Events interesting 
 // -------------------------------
+Route::get('/events/{eventId}/interest-status', [EventInterestController::class, 'status']);
 Route::middleware('auth:sanctum',)->group(function () {
     Route::post('/events/{event}/interested', [EventInterestController::class, 'store']);
     Route::delete('/events/{event}/interested', [EventInterestController::class, 'destroy']);

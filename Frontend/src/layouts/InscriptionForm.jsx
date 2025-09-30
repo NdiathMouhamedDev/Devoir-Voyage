@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function InscriptionForm() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone_number: "",
     address: "",
-    paiement: "cash",
+    payment: "cash",
+    statuts: "valid"
   });
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,6 +43,7 @@ export default function InscriptionForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user_id")
     
     if (!token) {
       setStatus({ type: "warning", text: "Vous devez être connecté" });
@@ -51,6 +54,7 @@ export default function InscriptionForm() {
     setStatus(null);
 
     try {
+      // 1. Mettre à jour les infos utilisateur
       await api.put("/user", {
         name: form.name,
         email: form.email,
@@ -58,12 +62,19 @@ export default function InscriptionForm() {
         address: form.address,
       });
 
+      // 2. Créer l'inscription avec TOUTES les données nécessaires
       await api.post(`/inscriptions/${id}`, {
         event_id: id,
-        paiement: form.paiement,
+        user_id: user,
+        hourly_id: null,
+        payment: form.payment,
+        phone_number: form.phone_number,
+        address: form.address,
+        statuts: "valid",
       });
 
       setStatus({ type: "success", text: "Inscription réussie !" });
+      navigate(`/event/${id}`);
     } catch (err) {
       console.error("Erreur:", err);
       setStatus({
@@ -74,6 +85,7 @@ export default function InscriptionForm() {
       setLoading(false);
     }
   }
+
 
   if (loadingUser) {
     return (
@@ -143,12 +155,13 @@ export default function InscriptionForm() {
 
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">Mode de paiement</span>
+              <span className="label-text font-medium">Mode de payment</span>
             </label>
             <select
               className="select select-bordered"
-              value={form.paiement}
-              onChange={(e) => setForm({ ...form, paiement: e.target.value })}
+              required
+              value={form.payment}
+              onChange={(e) => setForm({ ...form, payment: e.target.value })}
             >
               <option value="cash">Espèces</option>
               <option value="online" disabled>

@@ -28,10 +28,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
         'phone_number',
         'address',
-        // 'admin_request_status',
-        // 'admin_requested_at',
-        // 'admin_approved_at',
-        // 'admin_verification_token',
     ];
 
     public function isAdmin()
@@ -66,26 +62,15 @@ class User extends Authenticatable implements MustVerifyEmail
         ])->save();
     }
 
-    // public function sendEmailVerificationNotification()
-    // {
-    //     $this->notify(new class extends VerifyEmail {
-    //         protected function verificationUrl($notifiable)
-    //         {
-    //             return URL::temporarySignedRoute(
-    //                 'verification.verify',
-    //                 Carbon::now()->addMinutes(60),
-    //                 [
-    //                     'id' => $notifiable->getKey(),
-    //                     'hash' => sha1($notifiable->getEmailForVerification()),
-    //                 ]
-    //             );
-    //         }
-    //     });
-    // }
-
     public function inscriptions() {
         return $this->hasMany(Inscription::class);
     }
 
+
+    public function interestedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'interested_event_user', 'user_id', 'event_id')
+            ->withTimestamps();
+    }
 
 }
