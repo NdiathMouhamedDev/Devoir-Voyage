@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail; 
 use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
@@ -16,6 +16,10 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail());
+    }
     protected $fillable = [
         'name',
         'email',
@@ -62,22 +66,22 @@ class User extends Authenticatable implements MustVerifyEmail
         ])->save();
     }
 
-    public function sendEmailVerificationNotification()
-    {
-        $this->notify(new class extends VerifyEmail {
-            protected function verificationUrl($notifiable)
-            {
-                return URL::temporarySignedRoute(
-                    'verification.verify',
-                    Carbon::now()->addMinutes(60),
-                    [
-                        'id' => $notifiable->getKey(),
-                        'hash' => sha1($notifiable->getEmailForVerification()),
-                    ]
-                );
-            }
-        });
-    }
+    // public function sendEmailVerificationNotification()
+    // {
+    //     $this->notify(new class extends VerifyEmail {
+    //         protected function verificationUrl($notifiable)
+    //         {
+    //             return URL::temporarySignedRoute(
+    //                 'verification.verify',
+    //                 Carbon::now()->addMinutes(60),
+    //                 [
+    //                     'id' => $notifiable->getKey(),
+    //                     'hash' => sha1($notifiable->getEmailForVerification()),
+    //                 ]
+    //             );
+    //         }
+    //     });
+    // }
 
     public function inscriptions() {
         return $this->hasMany(Inscription::class);

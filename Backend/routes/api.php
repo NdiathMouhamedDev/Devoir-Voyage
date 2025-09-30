@@ -12,7 +12,12 @@ use App\Http\Controllers\HourlyController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Support\Carbon;
+use Illuminate\Auth\Events\Verified;
+
 
 
 
@@ -127,24 +132,34 @@ Route::post('/send-verification', function (Request $request) {
 
 // 📌 Vérification de l'email (lien cliqué dans l'email reçu)
 
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $user = User::find($request->route('id'));
+Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) {
+    // middleware 'signed' sera appliqué depuis l'enregistrement ci-dessous
+    Log::info('Email verify route hit', ['id' => $id, 'hash' => $hash, 'url' => $request->fullUrl()]);
 
-    if (!$user) {
+    $user = User::find($id);
+    if (! $user) {
         return redirect(config('app.frontend_url') . '/verify-email?status=user_not_found');
     }
 
+    // Vérifier le hash
+    if (! hash_equals( (string) $hash, sha1($user->getEmailForVerification()) )) {
+        return redirect(config('app.frontend_url') . '/verify-email?status=invalid_hash');
+    }
+
+    // Si déjà vérifié
     if ($user->hasVerifiedEmail()) {
         return redirect(config('app.frontend_url') . '/verify-email?status=already');
     }
 
-    if ($request->hasValidSignature()) {
-        $user->markEmailAsVerified();
-        return redirect(config('app.frontend_url') . '/verify-email?status=success');
-    }
+    // Mettre à jour
+    $user->email_verified_at = Carbon::now();
+    $user->save();
 
-    return redirect(config('app.frontend_url') . '/verify-email?status=invalid');
-})->name('verification.verify');
+    // déclencher event si besoin
+    event(new Verified($user));
+
+    return redirect(config('app.frontend_url') . '/verify-email?status=success');
+})->name('verification.verify')->middleware('signed');
 
 // 📌 Redemander l’envoi (si le lien a expiré)
 Route::post('/email/verification-notification', function (Request $request) {
