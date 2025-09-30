@@ -6,10 +6,9 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
   const [interestedCount, setInterestedCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
 
-  // Vérifier l'état initial d'intérêt au chargement
   useEffect(() => {
-    // Ne rien faire tant que l'ID de l'événement n'est pas disponible
     if (!eventId) return;
+    
     const checkInterestStatus = async () => {
       try {
         const response = await api.get(`/events/${eventId}/interest-status`);
@@ -28,27 +27,25 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
       console.warn("Aucun eventId fourni au bouton d'intérêt, action ignorée.");
       return;
     }
+    
     if (!localStorage.getItem('token')) {
       alert("Vous devez être connecté pour marquer votre intérêt");
       window.location.href = '/login';
       return;
     }
-
+    
     setLoading(true);
+    
     try {
       let response;
       if (isInterested) {
-        // Si déjà intéressé, on retire l'intérêt
         response = await api.delete(`/events/${eventId}/interested`);
       } else {
-        // Sinon on ajoute l'intérêt
         response = await api.post(`/events/${eventId}/interested`);
       }
       
-      // Mettre à jour l'état avec les nouvelles données
       setIsInterested(response.data.is_interested);
       setInterestedCount(response.data.interested_count);
-      
     } catch (error) {
       console.error("Erreur lors du toggle d'intérêt:", error);
       if (error.response?.status === 401) {
@@ -63,23 +60,34 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex items-center gap-2">
       <button
         onClick={handleToggleInterest}
         disabled={loading}
-        className={`inline-flex items-center px-4 py-2 border rounded-md text-sm font-medium
-          ${isInterested
-            ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
-            : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-          }
-          ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-        `}
+        className={`btn btn-sm gap-2 ${
+          isInterested ? 'btn-error btn-outline' : 'btn-success btn-outline'
+        }`}
       >
-        {loading ? 'Chargement...' : (isInterested ? 'Je ne suis plus intéressé' : 'Je suis intéressé')}
+        {loading ? (
+          <span className="loading loading-spinner loading-xs"></span>
+        ) : (
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-4 w-4" 
+            fill={isInterested ? "currentColor" : "none"}
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+            />
+          </svg>
+        )}
+        {interestedCount}
       </button>
-      <div className="text-sm text-gray-600">
-        {interestedCount} {interestedCount <= 1 ? 'personne intéressée' : 'personnes intéressées'}
-      </div>
     </div>
   );
 }

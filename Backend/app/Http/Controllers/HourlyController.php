@@ -14,6 +14,17 @@ class HourlyController extends Controller
         return Hourly::orderBy('startup', 'asc')->get();
     }
 
+    public function getByEvent($eventId)
+    {
+        $hourlies = \App\Models\Hourly::where('event_id', $eventId)->get();
+
+        if ($hourlies->isEmpty()) {
+            return response()->json(['message' => 'Aucun planning trouvé'], 404);
+        }
+
+        return response()->json($hourlies);
+    }
+
     public function storeForEvent(Request $request, $id)
     {
         $event = Event::findOrFail($id);

@@ -126,7 +126,7 @@ Route::post('/send-verification', function (Request $request) {
 
 // 📌 Vérification de l'email (lien cliqué dans l'email reçu)
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); // marque l’email comme vérifié
+    $request->fulfill(); 
     return response()->json(['message' => 'Email vérifié avec succès']);
 })->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
 
@@ -140,6 +140,10 @@ Route::post('/email/verification-notification', function (Request $request) {
 
     return response()->json(['message' => 'Lien de vérification envoyé']);
 })->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
+
+Route::middleware('auth:sanctum')->get('/notifications', function (Request $request) {
+    return response()->json($request->user()->notifications);
+});
 
 
 // -------------------------
@@ -164,6 +168,7 @@ Route::middleware('auth:sanctum',)->group(function () {
 Route::get('/events/{id}/hourly', [HourlyController::class, 'showByEvent']);
 Route::post('/events/{id}/hourly', [HourlyController::class, 'storeForEvent']);
 Route::get('/event/{id}', [EventController::class, 'show']);
+Route::get('/events/{id}/hourlies', [HourlyController::class, 'getByEvent']);
 
 
 // ----------------------

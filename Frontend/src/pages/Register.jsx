@@ -1,10 +1,10 @@
-import React, { useState, } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import api from '../api';
 
 export default function Register() {
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
@@ -14,6 +14,7 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
@@ -44,13 +45,10 @@ export default function Register() {
       console.log('Full response:', response);
       
       let data;
-      // Si votre api.js retourne directement les données
       if (response.data) {
         data = response.data;
-      } 
+      }
 
-
-      // Vérifier le succès de différentes façons
       const isSuccess = response.ok || response.status === 200 || response.status === 201 || data.access_token;
 
       if (isSuccess && data.access_token) {
@@ -62,7 +60,6 @@ export default function Register() {
         
         setSuccess(true);
         
-        // CORRECTION 3: Redirection immédiate avec debug
         console.log('About to navigate to /events');
         
         setTimeout(() => {
@@ -72,7 +69,6 @@ export default function Register() {
         
       } else {
         console.error('Registration failed:', data);
-        // Gérer les erreurs de validation
         if ((response.status === 422 || data.errors) && data.errors) {
           setErrors(data.errors);
         } else {
@@ -90,25 +86,30 @@ export default function Register() {
 
   if (success) {
     return (
-      <div className="hero min-h-screen bg-success/10">
-        <div className="hero-content text-center">
-          <div className="card w-96 bg-base-100 shadow-xl">
-            <div className="card-body">
-              <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-              <h2 className="card-title text-2xl justify-center">Inscription réussie !</h2>
-              <p className="text-base-content/70 mb-4">Bienvenue {formData.name} !</p>
-              <div className="flex items-center justify-center gap-2">
-                <span className="loading loading-dots loading-sm"></span>
-                <span className="text-sm text-base-content/60">Redirection vers /events...</span>
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <div className="card w-full max-w-md bg-base-100 shadow-2xl">
+          <div className="card-body text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-success" />
               </div>
-              {/* Bouton de debug */}
-              <button 
-                className="btn btn-primary btn-sm mt-2"
-                onClick={() => navigate('/events')}
-              >
-                Aller maintenant aux événements
-              </button>
             </div>
+            <h2 className="card-title text-2xl justify-center text-base-content">
+              Inscription réussie !
+            </h2>
+            <p className="text-base-content/70 text-lg mb-4">
+              Bienvenue <span className="font-semibold text-primary">{formData.name}</span> !
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              <span className="loading loading-dots loading-md text-primary"></span>
+              <span className="text-sm text-base-content/60">Redirection en cours...</span>
+            </div>
+            <button 
+              className="btn btn-primary btn-sm mt-4"
+              onClick={() => navigate('/events')}
+            >
+              Accéder maintenant
+            </button>
           </div>
         </div>
       </div>
@@ -116,15 +117,27 @@ export default function Register() {
   }
 
   return (
-    <div className="hero min-h-screen bg-base-200">
-      <div className="hero-content flex-col lg:flex-row-reverse">
-        <div className="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100">
+    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        
+        {/* Card principale */}
+        <div className="card bg-base-100 shadow-2xl">
           <div className="card-body">
+            
+            {/* En-tête */}
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold">Créer un compte</h2>
-              <p className="text-base-content/70">Rejoignez-nous dès aujourd'hui</p>
+              <div className="flex justify-center mb-4">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-10 h-10 text-primary" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold text-base-content">Créer un compte</h1>
+              <p className="text-base-content/60 mt-2">
+                Rejoignez-nous dès aujourd'hui
+              </p>
             </div>
 
+            {/* Message d'erreur général */}
             {errors.general && (
               <div className="alert alert-error mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -134,26 +147,26 @@ export default function Register() {
               </div>
             )}
 
-            <div className="space-y-4">
+            {/* Formulaire */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
               {/* Nom */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Nom complet</span>
+                  <span className="label-text font-semibold">Nom complet</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-base-content/40" />
-                  </div>
+                <label className={`input input-bordered flex items-center gap-2 ${errors.name ? 'input-error' : ''}`}>
+                  <User className="w-4 h-4 opacity-70" />
                   <input
                     name="name"
                     type="text"
-                    required
+                    className="grow"
+                    placeholder="Votre nom complet"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`input input-bordered w-full pl-10 ${errors.name ? 'input-error' : ''}`}
-                    placeholder="Votre nom complet"
+                    required
                   />
-                </div>
+                </label>
                 {errors.name && (
                   <label className="label">
                     <span className="label-text-alt text-error">{errors.name[0]}</span>
@@ -164,22 +177,21 @@ export default function Register() {
               {/* Email */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Adresse email</span>
+                  <span className="label-text font-semibold">Adresse email</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-base-content/40" />
-                  </div>
+                <label className={`input input-bordered flex items-center gap-2 ${errors.email ? 'input-error' : ''}`}>
+                  <Mail className="w-4 h-4 opacity-70" />
                   <input
                     name="email"
                     type="email"
-                    required
+                    className="grow"
+                    placeholder="votre@email.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`input input-bordered w-full pl-10 ${errors.email ? 'input-error' : ''}`}
-                    placeholder="votre@email.com"
+                    required
+                    autoComplete="email"
                   />
-                </div>
+                </label>
                 {errors.email && (
                   <label className="label">
                     <span className="label-text-alt text-error">{errors.email[0]}</span>
@@ -190,96 +202,169 @@ export default function Register() {
               {/* Mot de passe */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Mot de passe</span>
+                  <span className="label-text font-semibold">Mot de passe</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-base-content/40" />
-                  </div>
+                <label className={`input input-bordered flex items-center gap-2 ${errors.password ? 'input-error' : ''}`}>
+                  <Lock className="w-4 h-4 opacity-70" />
                   <input
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    required
+                    className="grow"
+                    placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`input input-bordered w-full pl-10 pr-10 ${errors.password ? 'input-error' : ''}`}
-                    placeholder="Mot de passe"
+                    required
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
+                    className="btn btn-ghost btn-xs btn-circle"
+                    tabIndex={-1}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-base-content/40 hover:text-base-content" />
+                      <EyeOff className="w-4 h-4" />
                     ) : (
-                      <Eye className="h-5 w-5 text-base-content/40 hover:text-base-content" />
+                      <Eye className="w-4 h-4" />
                     )}
                   </button>
-                </div>
+                </label>
                 {errors.password && (
                   <label className="label">
                     <span className="label-text-alt text-error">{errors.password[0]}</span>
                   </label>
                 )}
+                <label className="label">
+                  <span className="label-text-alt">Minimum 8 caractères</span>
+                </label>
               </div>
 
               {/* Confirmation mot de passe */}
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Confirmer le mot de passe</span>
+                  <span className="label-text font-semibold">Confirmer le mot de passe</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-base-content/40" />
-                  </div>
+                <label className={`input input-bordered flex items-center gap-2 ${errors.password_confirmation ? 'input-error' : ''}`}>
+                  <Lock className="w-4 h-4 opacity-70" />
                   <input
                     name="password_confirmation"
-                    type="password"
-                    required
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="grow"
+                    placeholder="••••••••"
                     value={formData.password_confirmation}
                     onChange={handleChange}
-                    className={`input input-bordered w-full pl-10 ${errors.password_confirmation ? 'input-error' : ''}`}
-                    placeholder="Confirmer le mot de passe"
+                    required
+                    autoComplete="new-password"
                   />
-                </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="btn btn-ghost btn-xs btn-circle"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </label>
                 {errors.password_confirmation && (
                   <label className="label">
                     <span className="label-text-alt text-error">{errors.password_confirmation[0]}</span>
                   </label>
                 )}
               </div>
-            </div>
 
-            <div className="form-control mt-6">
+              {/* Force du mot de passe */}
+              {formData.password && (
+                <div className="form-control">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-base-content/60">Force:</span>
+                    <progress 
+                      className={`progress w-32 ${
+                        formData.password.length < 8 ? 'progress-error' :
+                        formData.password.length < 12 ? 'progress-warning' :
+                        'progress-success'
+                      }`}
+                      value={Math.min(formData.password.length * 8, 100)} 
+                      max="100"
+                    ></progress>
+                    <span className={`badge badge-sm ${
+                      formData.password.length < 8 ? 'badge-error' :
+                      formData.password.length < 12 ? 'badge-warning' :
+                      'badge-success'
+                    }`}>
+                      {formData.password.length < 8 ? 'Faible' :
+                       formData.password.length < 12 ? 'Moyen' :
+                       'Fort'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Bouton d'inscription */}
               <button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={loading}
-                className={`btn btn-primary ${loading ? 'loading' : ''}`}
+                className="btn btn-primary w-full"
               >
                 {loading ? (
                   <>
-                    <span className="loading loading-spinner loading-sm"></span>
+                    <span className="loading loading-spinner"></span>
                     Inscription en cours...
                   </>
                 ) : (
-                  'S\'inscrire'
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    S'inscrire
+                  </>
                 )}
               </button>
-            </div>
+            </form>
 
-            <div className="divider">OU</div>
+            {/* Divider */}
+            <div className="divider">ou</div>
 
+            {/* Lien vers connexion */}
             <div className="text-center">
-              <p className="text-sm text-base-content/70">
+              <p className="text-sm text-base-content/60">
                 Déjà un compte ?{' '}
                 <button 
                   onClick={() => navigate('/login')}
-                  className="link link-primary link-hover"
+                  className="link link-primary font-semibold"
                 >
                   Se connecter
                 </button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info supplémentaire */}
+        <div className="card bg-base-100 shadow-lg mt-4">
+          <div className="card-body py-3">
+            <div className="flex items-start gap-3">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5 text-info shrink-0 mt-0.5" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+              <p className="text-sm text-base-content/70">
+                En créant un compte, vous acceptez nos{' '}
+                <a href="#" className="link link-primary">conditions d'utilisation</a> et notre{' '}
+                <a href="#" className="link link-primary">politique de confidentialité</a>.
               </p>
             </div>
           </div>

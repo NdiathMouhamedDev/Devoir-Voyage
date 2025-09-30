@@ -2,65 +2,59 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
-class AdminRequestNotification extends Notification implements ShouldQueue
+class CustomVerifyEmail extends VerifyEmail
 {
-    use Queueable;
-
-    protected $verificationUrl;
-
     /**
-     * Create a new notification instance.
+     * Canaux de notification
      */
-    public function __construct(string $verificationUrl)
+    public function via($notifiable)
     {
-        $this->verificationUrl = $verificationUrl;
+        // On envoie par mail ET on enregistre en base
+        return ['mail', 'database'];
     }
 
     /**
-     * Get the notification's delivery channels.
+     * Construire l'email
      */
-    public function via($notifiable): array
+    public function toMail($notifiable)
     {
-        return ['mail'];
-    }
+        $verificationUrl = $this->verificationUrl($notifiable);
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail($notifiable): MailMessage
-    {
         return (new MailMessage)
-            ->subject('Demande de rôle Administrateur')
-            ->greeting('Bonjour ' . $notifiable->name . ' !')
-            ->line('Vous avez demandé de recevoir des notification depuis notre plateforme.')
-            ->line('Pour confirmer votre demande et obtenir les privilèges administrateur, cliquez sur le bouton ci-dessous :')
-            ->action('Confirmer la demande Admin', $this->verificationUrl)
-            ->line('⚠️ **Important** : Ce lien expire dans 24 heures.')
-            ->line('Si vous n\'avez pas fait cette demande, ignorez cet email.')
-            ->line('')
-            ->line('**Privilèges administrateur :**')
-            ->line('• Gestion complète des événements')
-            ->line('• Accès au panneau d\'administration')
-            ->line('• Modération des utilisateurs')
-            ->line('')
-            ->line('Merci d\'utiliser notre plateforme !')
-            ->salutation('Cordialement, L\'équipe ' . config('app.name'));
+            ->subject('Vérifie ton adresse email')
+            ->line('Clique sur le bouton ci-dessous pour vérifier ton adresse email.')
+            ->action('Vérifier mon email', $verificationUrl)
+            ->line('Si tu n’as pas créé de compte, ignore cet email.');
     }
 
     /**
-     * Get the array representation of the notification.
+     * Ce qui sera stocké en base (table notifications)
      */
-    public function toArray($notifiable): array
+    public function toDatabase($notifiable)
     {
         return [
-            'message' => 'Demande de rôle administrateur',
-            'url' => $this->verificationUrl,
-            'user_id' => $notifiable->id
+            'message' => 'Un email de vérification t’a été envoyé.',
+            'email'   => $notifiable->email,
         ];
+    }
+
+    /**
+     * Génère l’URL de vérification
+     */
+    protected function verificationUrl($notifiable)
+    {
+        return URL::temporarySignedRoute(
+            'verification.verify', // ta route dans api.php
+            Carbon::now()->addMinutes(60),
+            [
+                'id'   => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
     }
 }

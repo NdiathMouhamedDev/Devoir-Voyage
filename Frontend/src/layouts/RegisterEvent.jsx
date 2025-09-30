@@ -2,8 +2,8 @@ import { useState } from "react";
 import { createEvent } from "../services/functions";
 import { useNavigate } from "react-router-dom";
 
-export default function RegisterEvent() {
-  const navigate = useNavigate()
+export default function RegisterEvent({ onSuccess }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -17,7 +17,7 @@ export default function RegisterEvent() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError(""); // Réinitialiser l'erreur lors d'un changement
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -28,101 +28,162 @@ export default function RegisterEvent() {
     try {
       const data = await createEvent(form);
       console.log("Événement créé :", data);
-      alert("✅ Événement créé avec succès !");
-      navigate("/events");
+      
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate("/events");
+      }
+      
+      setForm({
+        title: "",
+        description: "",
+        start_at: "",
+        end_at: "",
+        location: "",
+      });
     } catch (err) {
-      console.error("❌ Erreur:", err);
+      console.error("Erreur:", err);
       setError(err.response?.data?.message || "Une erreur est survenue lors de la création de l'événement");
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Créer un nouvel événement
-          </h2>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="alert alert-error">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="form-control">
+        <label className="label">
+          <span className="label-text font-medium">Titre de l'événement</span>
+        </label>
+        <input
+          name="title"
+          type="text"
+          required
+          className="input input-bordered"
+          placeholder="Ex: Conférence annuelle"
+          value={form.title}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="form-control">
+        <label className="label">
+          <span className="label-text font-medium">Description</span>
+        </label>
+        <textarea
+          name="description"
+          required
+          className="textarea textarea-bordered h-24"
+          placeholder="Décrivez votre événement..."
+          value={form.description}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text font-medium">Date et heure de début</span>
+          </label>
+          <input
+            type="datetime-local"
+            name="start_at"
+            required
+            className="input input-bordered"
+            value={form.start_at}
+            onChange={handleChange}
+          />
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-            {error}
-          </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <input
-                name="title"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Titre de l'événement"
-                value={form.title}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <textarea
-                name="description"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Description"
-                value={form.description}
-                onChange={handleChange}
-                rows={4}
-              />
-            </div>
-            <div>
-              <input
-                type="datetime-local"
-                name="start_at"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                value={form.start_at}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <input
-                type="datetime-local"
-                name="end_at"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                value={form.end_at}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <input
-                type="text"
-                name="location"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Lieu"
-                value={form.location}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              {loading ? "Création en cours..." : "Créer l'événement"}
-            </button>
-          </div>
-        </form>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text font-medium">Date et heure de fin</span>
+          </label>
+          <input
+            type="datetime-local"
+            name="end_at"
+            required
+            className="input input-bordered"
+            value={form.end_at}
+            onChange={handleChange}
+          />
+        </div>
       </div>
-    </div>
+
+      <div className="form-control">
+        <label className="label">
+          <span className="label-text font-medium">Lieu</span>
+        </label>
+        <input
+          type="text"
+          name="location"
+          className="input input-bordered"
+          placeholder="Ex: Grande Mosquée de Touba"
+          value={form.location}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div className="flex gap-2 justify-end">
+        <button
+          type="button"
+          onClick={() => navigate("/events")}
+          className="btn btn-ghost"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn btn-primary gap-2"
+        >
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Création en cours...
+            </>
+          ) : (
+            <>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Créer l'événement
+            </>
+          )}
+        </button>
+      </div>
+    </form>
   );
 }

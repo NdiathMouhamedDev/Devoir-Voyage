@@ -1,22 +1,22 @@
 export default function AppLogo() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100">
+    <div className="flex items-center justify-center bg-gradient-to-br ">
       <div className="app-logo relative">
         {/* Cercle décoratif en arrière-plan */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full opacity-20 blur-2xl"></div>
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full opacity-20 blur-2xl"></div>
         </div>
         
         {/* Container principal du logo */}
-        <div className="relative bg-white rounded-3xl shadow-2xl px-12 py-8 border-4 border-emerald-500">
+        <div className="relative bg-white rounded-2xl shadow-1xl px-4 py-2 border-4 border-emerald-500">
           {/* Ornement supérieur */}
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
             <div className="w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-lg"></div>
           </div>
           
           {/* Texte principal */}
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent tracking-wide">
-            Touba
+          <h1 className="text-1xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent tracking-wide">
+            Touba <br /> Events
           </h1>
           
           {/* Ligne décorative */}

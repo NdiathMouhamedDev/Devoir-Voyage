@@ -1,37 +1,83 @@
-import React, { StrictMode, useState } from "react";
+import React, { StrictMode } from "react";
 import { Link } from "react-router-dom";
+import AppLogo from "./AppLogo"
 
 /**
  * Navbar dynamique, responsive et réutilisable avec daisyUI
  * @param {Object} props
  * @param {Array<{label: string, href: string}>} props.links
  * @param {string|React.ReactNode} props.logo
-//  * @param {React.ReactNode} [props.button] --- IGNORE ---
+ * @param {string} [props.className]
  */
-export const Navbar = ({ links = [], logo = "Logo",className }) => {
-    return (
-        <StrictMode>
-            <nav style={{margin:"0"}} className="center">
-                <div style={{left:"5vw", width:"90vw"}} className="navbar rounded-3xl bg-base-200 fixed shadow-sm z-100">
-                    <div className="navbar-start">
-                        <a className="btn btn-ghost text-xl">{logo}</a>
-                    </div>
-                    <div className="navbar-center lg:flex">
-                        <ul style={{}} className="menu menu-horizontal inline">
-                            {links.map((link) => 
-                                <Link to={link.href} aria-current="page" style={{margin:"0 1.2rem"}} className={` `+ className} key={`${link.label}-${link.href}`}>{link.label}
-                                </Link>
-                            )}
-                        </ul>
-                    </div>
-                    <div className="navbar-end">
-                        <Link to="/login" aria-current="page" className="btn link m-4 bg-base-300">Connexion</Link>
-                        <Link to="/register" aria-current="page" className="btn link m-4 bg-base-300">Inscription</Link>
-                        <div className="void"></div>
-                    </div>
-                </div>
-            </nav>
-        </StrictMode>
-    );
+export const Navbar = ({ links = [], className = "" }) => {
+  return (
+    <StrictMode>
+      <nav className="flex justify-center">
+        <div className="navbar bg-base-200 rounded-3xl shadow-lg fixed top-4 w-[90vw] z-50">
+          {/* Logo */}
+          <div className="navbar-start">
+            <AppLogo />
+          </div>
+
+          {/* Menu desktop */}
+          <div className="navbar-center hidden lg:flex">
+            <ul className="menu menu-horizontal px-1 gap-2">
+              {links.map((link) => (
+                <li key={`${link.label}-${link.href}`}>
+                  <Link id={link.label}
+                    to={link.href} 
+                    className={`btn btn-ghost text-xl ${className}` }
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Boutons d'authentification */}
+          <div className="navbar-end gap-2">
+            <Link to="/login" className="btn btn-ghost">
+              Connexion
+            </Link>
+            <Link to="/register" className="btn btn-primary">
+              Inscription
+            </Link>
+          </div>
+
+          {/* Menu mobile hamburger */}
+          <div className="dropdown dropdown-end lg:hidden">
+            <label tabIndex={0} className="btn btn-ghost">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </label>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-200 rounded-box w-52"
+            >
+              {links.map((link) => (
+                <li key={`mobile-${link.label}-${link.href}`}>
+                  <Link to={link.href}>{link.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </StrictMode>
+  );
 };
+
 export default Navbar;

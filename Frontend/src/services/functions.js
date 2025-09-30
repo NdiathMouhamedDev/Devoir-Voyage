@@ -86,6 +86,9 @@ export const getHourlyById = async (id) => {
   }
 };
 
+export const getHourlyByEvent = (eventId) => {
+  return api.get(`/events/${eventId}/hourlies`);
+};
 
 export const createHourly = async (data) => {
   try{

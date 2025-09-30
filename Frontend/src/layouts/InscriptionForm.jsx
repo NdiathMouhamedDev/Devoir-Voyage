@@ -12,133 +12,173 @@ export default function InscriptionForm() {
     paiement: "cash",
   });
   const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  // Charger les infos user (pré-remplissage)
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      setLoadingUser(false);
+      return;
+    }
 
     api
-      .get("/user") // ⚠️ Laravel Sanctum expose /api/user (pas /api/api/user)
+      .get("/user")
       .then((res) => {
+        const userData = res.data.user || res.data;
         setForm((prev) => ({
           ...prev,
-          name: res.data.name || "",
-          email: res.data.email || "",
-          phone_number: res.data.phone_number || "",
-          address: res.data.address || "",
+          name: userData.name || "",
+          email: userData.email || "",
+          phone_number: userData.phone_number || "",
+          address: userData.address || "",
         }));
       })
-      .catch(() => setStatus("⚠️ Impossible de charger vos infos"));
+      .catch(() => setStatus({ type: "error", text: "Impossible de charger vos informations" }))
+      .finally(() => setLoadingUser(false));
   }, []);
 
-  // Soumission du formulaire
   async function handleSubmit(e) {
-  e.preventDefault();
-  const token = localStorage.getItem("token");
-  if (!token) {
-    setStatus("⚠️ Vous devez être connecté");
-    return;
-  }
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      setStatus({ type: "warning", text: "Vous devez être connecté" });
+      return;
+    }
 
-  try {
-    // 1. Mise à jour profil
-    await api.put("/user", {
-      name: form.name,
-      email: form.email,
-      phone_number: form.phone_number,
-      address: form.address,
-    });
+    setLoading(true);
+    setStatus(null);
 
-    // 2. Inscription à l’event
-    const res = await api.post(`/inscriptions/${id}`, {
-      event_id: id ?? 1, // ⚠️ passer l’id de l’event courant
-      paiement: form.paiement,
-    });
+    try {
+      await api.put("/user", {
+        name: form.name,
+        email: form.email,
+        phone_number: form.phone_number,
+        address: form.address,
+      });
 
-    setStatus("✅ Inscription réussie !");
-    console.log("Réponse backend:", res.data);
+      await api.post(`/inscriptions/${id}`, {
+        event_id: id,
+        paiement: form.paiement,
+      });
 
-  } catch (err) {
-    console.error("Erreur Axios complète:", err);
-    if (err.response) {
-      setStatus("❌ " + (err.response.data.message || "Erreur serveur"));
-    } else if (err.request) {
-      setStatus("❌ Pas de réponse du serveur");
-    } else {
-      setStatus("❌ Erreur: " + err.message);
+      setStatus({ type: "success", text: "Inscription réussie !" });
+    } catch (err) {
+      console.error("Erreur:", err);
+      setStatus({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de l'inscription",
+      });
+    } finally {
+      setLoading(false);
     }
   }
-}
 
-
+  if (loadingUser) {
+    return (
+      <div className="flex justify-center p-8">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-base-200 rounded-lg shadow">
-      <h2 className="text-lg font-bold mb-3">Formulaire d'inscription</h2>
+    <div className="card bg-base-100 shadow-xl">
+      <div className="card-body">
+        <h2 className="card-title text-2xl mb-6">Formulaire d'inscription</h2>
 
-      <div className="mb-2">
-        <label className="block text-sm">Nom</label>
-        <input
-          type="text"
-          className="input input-bordered w-full"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Nom complet</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Email</span>
+            </label>
+            <input
+              type="email"
+              className="input input-bordered"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Téléphone</span>
+            </label>
+            <input
+              type="tel"
+              className="input input-bordered"
+              value={form.phone_number}
+              onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Adresse</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Mode de paiement</span>
+            </label>
+            <select
+              className="select select-bordered"
+              value={form.paiement}
+              onChange={(e) => setForm({ ...form, paiement: e.target.value })}
+            >
+              <option value="cash">Espèces</option>
+              <option value="online" disabled>
+                En ligne (indisponible)
+              </option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary w-full gap-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Inscription en cours...
+              </>
+            ) : (
+              "S'inscrire à l'événement"
+            )}
+          </button>
+
+          {status && (
+            <div className={`alert alert-${status.type}`}>
+              <span>{status.text}</span>
+            </div>
+          )}
+        </form>
       </div>
-
-      <div className="mb-2">
-        <label className="block text-sm">Email</label>
-        <input
-          type="email"
-          className="input input-bordered w-full"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          required
-        />
-      </div>
-
-      <div className="mb-2">
-        <label className="block text-sm">Téléphone</label>
-        <input
-          type="text"
-          className="input input-bordered w-full"
-          value={form.phone_number}
-          onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-          required
-        />
-      </div>
-
-      <div className="mb-2">
-        <label className="block text-sm">Adresse</label>
-        <input
-          type="text"
-          className="input input-bordered w-full"
-          value={form.address}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
-          required
-        />
-      </div>
-
-      <div className="mb-2">
-        <label className="block text-sm">Mode de paiement</label>
-        <select
-          className="select select-bordered w-full"
-          value={form.paiement}
-          onChange={(e) => setForm({ ...form, paiement: e.target.value })}
-        >
-          <option value="cash">💵 Cash</option>
-          <option value="online" disabled>
-            💳 Online (indisponible)
-          </option>
-        </select>
-      </div>
-
-      <button className="btn btn-primary mt-2">S'inscrire</button>
-      {status && <p className="mt-2 text-sm">{status}</p>}
-    </form>
+    </div>
   );
 }
-
-
