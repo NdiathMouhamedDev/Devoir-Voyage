@@ -57,4 +57,25 @@ class InscriptionController extends Controller
             ]
         ], 201);
     }
+
+    public function checkRegistration($eventId)
+    {
+        $user = Auth::user();
+        
+        $inscription = Inscription::where('event_id', $eventId)
+            ->where('user_id', $user->id)
+            ->first();
+        
+        if ($inscription) {
+            return response()->json([
+                'is_registered' => true,
+                'statuts' => $inscription->statuts,
+                'inscription' => $inscription
+            ], 200);
+        }
+        
+        return response()->json([
+            'is_registered' => false
+        ], 404);
+    }
 }

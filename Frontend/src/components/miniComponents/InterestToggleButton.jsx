@@ -69,6 +69,7 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
     }
   };
 
+  
   return (
     <div className="flex items-center gap-2">
       <button

@@ -93,7 +93,7 @@ Route::get('/events/{eventId}/interest-status', [EventInterestController::class,
 Route::middleware('auth:sanctum',)->group(function () {
     Route::post('/events/{event}/interested', [EventInterestController::class, 'store']);
     Route::delete('/events/{event}/interested', [EventInterestController::class, 'destroy']);
-    Route::get('/events/{event}/interest-status', [EventInterestController::class, 'status']);
+    Route::get('/events/{eventId}/interest-status', [EventInterestController::class, 'status']);
 });
 
 // -------------------------
@@ -211,5 +211,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/inscriptions/{hourlyId}', [InscriptionController::class, 'destroy']);
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/inscriptions/check/{eventId}', [InscriptionController::class, 'checkRegistration']);
+});
 
 
