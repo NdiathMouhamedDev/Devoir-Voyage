@@ -32,7 +32,7 @@ Application web pour planifier et gérer le voyage de Touba : consultation des h
 
 ```bash
 # Cloner le projet
-git clone <repo-url>
+git clone https://github.com/NdiathMouhamedDev/Devoir-Voyage.git
 cd Backend
 
 # Installer les dépendances
