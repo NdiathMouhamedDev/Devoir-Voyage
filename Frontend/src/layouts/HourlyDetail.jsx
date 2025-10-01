@@ -1,33 +1,29 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getHourlyByEvent } from "../services/functions";
 import SmartCountdown from "../components/SmartCountdown";
 import echo from "../../echo";
 import { useAuth } from "../layouts/UseAuth";
 import api from "../api";
+import { toast } from 'react-hot-toast';
 
 export default function HourlyDetail() {
   const { id } = useParams();
-  const [hourly, setHourly] = useState(null);
-  const [subscribedHourlies, setSubscribedHourlies] = useState({}); // ✅ Objet au lieu de boolean
+  const [hourly, setHourly] = useState([]);
+  const [subscribedHourlies, setSubscribedHourlies] = useState({}); 
   const { user } = useAuth();
-  const navigate = useNavigate();
+
+
 
   const handleSubscribe = async (hourlyItem) => {
-    
     const now = new Date();
     const startDate = new Date(hourlyItem.startup);
-    
-    console.log("Date de départ:", startDate);
-    console.log("Maintenant:", now);
 
-    // ⛔ Si l'événement a déjà commencé, on bloque
     if (startDate <= now) {
       alert("Impossible de s'abonner : le planning a déjà commencé ou est passé.");
       return;
     }
 
-    // Vérifier si l'email est vérifié
     if (!user?.email_verified_at) {
       try {
         const res = await api.post("/send-verification");
@@ -38,17 +34,30 @@ export default function HourlyDetail() {
       return;
     }
 
-    navigate(`/hourly/${hourlyItem.id}/inscrire`);
-    // S'abonner aux notifications WebSocket
-    echo.private(`hourly.${hourlyItem.id}`).listen("HourlyUpdated", (event) => {
-      alert(`Notification ${hourlyItem.title} : ${event.message}`);
-    });
+    try {
+      // S'abonner au canal WebSocket
+      const channel = echo.channel(`hourly.${hourlyItem.id}`);
 
-    // ✅ Marquer seulement CET horaire comme abonné
-    setSubscribedHourlies(prev => ({
-      ...prev,
-      [hourlyItem.id]: true
-    }));
+      channel.listen('.HourlyUpdated', (event) => {
+        console.log('Notification reçue:', event);
+
+        // Afficher une notification
+        alert(`${hourlyItem.title}: ${event.message}`);
+
+        // Ou utiliser react-hot-toast pour plus de style
+        // toast.success(`${hourlyItem.title}: ${event.message}`);
+      });
+
+      setSubscribedHourlies(prev => ({
+        ...prev,
+        [hourlyItem.id]: true
+      }));
+
+      console.log(`Abonné aux notifications pour: ${hourlyItem.title}`);
+    } catch (error) {
+      console.error("Erreur lors de l'abonnement:", error);
+      alert("Erreur lors de l'activation des notifications");
+    }
   };
 
   useEffect(() => {
@@ -57,15 +66,16 @@ export default function HourlyDetail() {
       const data = res.data ?? res;
       setHourly(Array.isArray(data) ? data : [data]);
     });
-  }, [id]);
 
-  if (!hourly) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-      </div>
-    );
-  }
+    // Nettoyage : se désabonner quand le composant est démonté
+    return () => {
+      if (hourly) {
+        hourly.forEach(h => {
+          echo.leaveChannel(`hourly.${h.id}`);
+        });
+      }
+    };
+  }, [id]);
 
   return (
     <div className="space-y-6">
@@ -77,7 +87,7 @@ export default function HourlyDetail() {
           hour: "2-digit",
           minute: "2-digit"
         });
-        
+
         const endDisplay = h.end ? new Date(h.end).toLocaleDateString("fr-FR", {
           day: "2-digit",
           month: "2-digit",
@@ -93,7 +103,7 @@ export default function HourlyDetail() {
           <div key={h.id || `hourly-${Math.random()}`} className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-2xl mb-6">{h.title}</h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="bg-base-200 p-4 rounded-lg space-y-3">
@@ -224,11 +234,11 @@ export default function HourlyDetail() {
                 </div>
 
                 <div className="flex items-center justify-center">
-                  <SmartCountdown 
-                    start={h.startup} 
-                    end={h.end} 
-                    size={150} 
-                    stroke={12} 
+                  <SmartCountdown
+                    start={h.startup}
+                    end={h.end}
+                    size={150}
+                    stroke={12}
                   />
                 </div>
               </div>
