@@ -51,7 +51,13 @@ class InscriptionController extends Controller
             'statuts' => $validated['statuts'],
         ]);
 
-        $inscription->notify(new PlanningNotification($hourly, 'inscription'));
+        // ✅ Gérer l'erreur WhatsApp sans bloquer l'inscription
+        try {
+            $inscription->notify(new PlanningNotification($hourly, 'inscription'));
+        } catch (\Exception $e) {
+            // Log l'erreur mais ne pas bloquer l'inscription
+            \Log::error('Erreur notification WhatsApp: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Inscription réussie',
@@ -81,5 +87,23 @@ class InscriptionController extends Controller
         return response()->json([
             'is_registered' => false
         ], 404);
+    }
+
+    // ✅ NOUVELLE MÉTHODE : Vérifier l'inscription pour un horaire spécifique
+    public function check($hourlyId)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json(['is_registered' => false], 200);
+        }
+
+        $isRegistered = Inscription::where('hourly_id', $hourlyId)
+            ->where('user_id', $user->id)
+            ->exists();
+
+        return response()->json([
+            'is_registered' => $isRegistered
+        ], 200);
     }
 }

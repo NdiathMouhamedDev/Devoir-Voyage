@@ -207,6 +207,7 @@ Route::get('/events/{id}/hourlies', [HourlyController::class, 'getByEvent']);
 // ----------------------
 // Les inscriptions
 // ----------------------
+Route::middleware('auth:sanctum')->get('/inscriptions/{hourlyId}/check', [InscriptionController::class, 'check']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/inscriptions/{hourlyId}', [InscriptionController::class, 'store']);
     Route::delete('/inscriptions/{hourlyId}', [InscriptionController::class, 'destroy']);

@@ -7,6 +7,13 @@ use App\Services\WhatsAppService;
 
 class WhatsAppChannel
 {
+    protected $whatsapp;
+
+    public function __construct(WhatsAppService $whatsapp)
+    {
+        $this->whatsapp = $whatsapp;
+    }
+
     public function send($notifiable, Notification $notification)
     {
         if (! method_exists($notification, 'toWhatsApp')) {
@@ -17,7 +24,7 @@ class WhatsAppChannel
         $to = $notifiable->routeNotificationForWhatsApp();
 
         if ($to && $message) {
-            WhatsAppService::sendMessage($to, $message);
+            return $this->whatsapp->sendMessage($to, $message);
         }
     }
 }

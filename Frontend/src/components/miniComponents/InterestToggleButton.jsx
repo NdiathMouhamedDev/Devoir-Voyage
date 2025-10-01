@@ -16,6 +16,7 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
         const response = await api.get(`/events/${eventId}/interest-status`);
         setIsInterested(response.data.is_interested);
         setInterestedCount(response.data.interested_count);
+        setIsAuthenticated(response.data.is_authenticated);
       } catch (error) {
         console.error("Erreur lors de la vérification du statut:", error);
       }
@@ -38,7 +39,6 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
     }
 
     setLoading(true);
-    setIsAuthenticated(true);
 
     try {
       let response;
@@ -74,7 +74,7 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
     <div className="flex items-center gap-2">
       <button
         onClick={handleToggleInterest}
-        disabled={loading}
+        disabled={loading || !isAuthenticated}
         className={`btn btn-sm gap-2 ${
           isInterested ? 'btn-error btn-outline' : 'btn-success btn-outline'
         }`}

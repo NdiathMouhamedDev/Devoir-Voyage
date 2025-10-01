@@ -12,15 +12,39 @@ export default function HourlyDetail() {
   const [hourly, setHourly] = useState([]);
   const [subscribedHourlies, setSubscribedHourlies] = useState({});
   const [registeredHourlies, setRegisteredHourlies] = useState({});
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // ✅ Fonction pour vérifier les inscriptions
+  const checkRegistrations = async (hourlies) => {
+    if (!user) return;
+
+    try {
+      const registrationStatus = {};
+      
+      for (const h of hourlies) {
+        try {
+          const response = await api.get(`/inscriptions/${h.id}/check`);
+          registrationStatus[h.id] = response.data.is_registered || false;
+        } catch (error) {
+          console.error(`Erreur vérification inscription ${h.id}:`, error);
+          registrationStatus[h.id] = false;
+        }
+      }
+      
+      setRegisteredHourlies(registrationStatus);
+    } catch (error) {
+      console.error("Erreur lors de la vérification des inscriptions:", error);
+    }
+  };
 
   const handleSubscribeform = async (hourlyItem) => {
     const now = new Date();
     const startDate = new Date(hourlyItem.startup);
 
     if (startDate <= now) {
-      alert("Impossible de s'inscrire : le planning a déjà commencé ou est passé.");
+      toast.error("Impossible de s'inscrire : le planning a déjà commencé ou est passé.");
       return;
     }
 
@@ -32,16 +56,17 @@ export default function HourlyDetail() {
     const startDate = new Date(hourlyItem.startup);
 
     if (startDate <= now) {
-      alert("Impossible de s'abonner : le planning a déjà commencé ou est passé.");
+      toast.error("Impossible de s'abonner : le planning a déjà commencé ou est passé.");
       return;
     }
 
     if (!user?.email_verified_at) {
       try {
         const res = await api.post("/send-verification");
-        alert(res.data.message);
+        toast.info(res.data.message);
       } catch (err) {
         console.error("Erreur envoi vérification email:", err);
+        toast.error("Erreur lors de l'envoi de l'email de vérification");
       }
       return;
     }
@@ -65,31 +90,31 @@ export default function HourlyDetail() {
         [hourlyItem.id]: true
       }));
 
-      alert(`Vous êtes maintenant abonné aux notifications pour "${hourlyItem.title}"`);
+      toast.success(`Vous êtes maintenant abonné aux notifications pour "${hourlyItem.title}"`);
     } catch (error) {
       console.error("Erreur lors de l'abonnement:", error);
-      alert("Erreur lors de l'activation des notifications");
+      toast.error("Erreur lors de l'activation des notifications");
     }
   };
 
   useEffect(() => {
-    getHourlyByEvent(id).then((res) => {
-      if (!res) return;
+    setLoading(true);
+    
+    getHourlyByEvent(id).then(async (res) => {
+      if (!res) {
+        setLoading(false);
+        return;
+      }
+      
       const data = res.data ?? res;
-      setHourly(Array.isArray(data) ? data : [data]);
+      const hourliesData = Array.isArray(data) ? data : [data];
+      setHourly(hourliesData);
+      
+      // ✅ Vérifier les inscriptions après avoir chargé les horaires
+      await checkRegistrations(hourliesData);
+      
+      setLoading(false);
     });
-
-    // Vérifier si l'utilisateur revient du formulaire d'inscription
-    const urlParams = new URLSearchParams(window.location.search);
-    const registered = urlParams.get('registered');
-    if (registered) {
-      setRegisteredHourlies(prev => ({
-        ...prev,
-        [registered]: true
-      }));
-      // Nettoyer l'URL
-      window.history.replaceState({}, '', window.location.pathname);
-    }
 
     return () => {
       if (hourly) {
@@ -98,7 +123,15 @@ export default function HourlyDetail() {
         });
       }
     };
-  }, [id]);
+  }, [id, user]); // ✅ Ajouter user comme dépendance
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -263,13 +296,13 @@ export default function HourlyDetail() {
                   {/* Bouton Notifications */}
                   <button
                     onClick={() => handleSubscribe(h)}
-                    disabled={isRegistered || isSubscribed}
+                    disabled={!isRegistered || isSubscribed}
                     className={`btn w-full gap-2 ${
                       isSubscribed 
                         ? 'btn-success' 
                         : isRegistered 
                         ? 'btn-accent' 
-                        : 'btn-accent'
+                        : 'btn-disabled'
                     }`}
                   >
                     {isSubscribed ? (

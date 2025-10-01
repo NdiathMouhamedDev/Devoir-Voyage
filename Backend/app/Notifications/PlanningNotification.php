@@ -25,25 +25,28 @@ class PlanningNotification extends Notification
     }
 
     public function toWhatsApp($notifiable)
-    {
-        switch ($this->type) {
-            case 'inscription':
-                return "✅ Bonjour {$notifiable->user->name}, votre inscription est confirmée !\n"
-                     . "📅 Planning: {$this->hourly->title}\n"
-                     . "🕒 Départ prévu: {$this->hourly->startup}\n"
-                     . "📍 Lieu: {$this->hourly->place}";
+{
+    // $notifiable est déjà l'inscription, donc l'utilisateur est accessible via $notifiable->user
+    $userName = $notifiable->user->name ?? 'Utilisateur';
+    
+    switch ($this->type) {
+        case 'inscription':
+            return "✅ Bonjour {$userName}, votre inscription est confirmée !\n"
+                 . "📅 Planning: {$this->hourly->title}\n"
+                 . "🕒 Départ prévu: {$this->hourly->startup}\n"
+                 . "📍 Lieu: {$this->hourly->place}";
 
-            case 'reminder_1d':
-                return "⏰ Rappel : demain vous avez le planning {$this->hourly->title}.\n"
-                     . "🕒 Départ: {$this->hourly->startup}\n"
-                     . "📍 Lieu: {$this->hourly->place}";
+        case 'reminder_1d':
+            return "⏰ Rappel : demain vous avez le planning {$this->hourly->title}.\n"
+                 . "🕒 Départ: {$this->hourly->startup}\n"
+                 . "📍 Lieu: {$this->hourly->place}";
 
-            case 'reminder_30m':
-                return "⚡ Dernier rappel : dans 30 minutes commence {$this->hourly->title}.\n"
-                     . "Soyez prêt ! 🚌";
+        case 'reminder_30m':
+            return "⚡ Dernier rappel : dans 30 minutes commence {$this->hourly->title}.\n"
+                 . "Soyez prêt ! 🚌";
 
-            default:
-                return null;
-        }
+        default:
+            return null;
     }
+}
 }

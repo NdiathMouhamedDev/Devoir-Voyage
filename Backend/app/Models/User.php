@@ -75,7 +75,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForWhatsApp()
     {
-        return $this->phone; // le champ "phone" doit contenir le numéro format international
+        return $this->phone_number; // le champ "phone" doit contenir le numéro format international
     }
 
 }
