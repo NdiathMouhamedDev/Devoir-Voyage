@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Auth\Events\Verified;
+use App\Http\Controllers\HourlySubscriptionController;
+use App\Http\Controllers\NotificationController;
 
 
 
@@ -25,6 +27,7 @@ use Illuminate\Auth\Events\Verified;
 // Routes public events
 // ---------------------
 Route::get('/events/public', [EventController::class, 'publicEvents']);
+Route::get('/events/{eventId}/interest-status', [EventInterestController::class, 'status']);
 
 
 // ----------------
@@ -89,11 +92,9 @@ Route::middleware(['auth:sanctum',])->group(function () {
 //-------------------------------- 
 // Events interesting 
 // -------------------------------
-Route::get('/events/{eventId}/interest-status', [EventInterestController::class, 'status']);
 Route::middleware('auth:sanctum',)->group(function () {
     Route::post('/events/{event}/interested', [EventInterestController::class, 'store']);
     Route::delete('/events/{event}/interested', [EventInterestController::class, 'destroy']);
-    Route::get('/events/{eventId}/interest-status', [EventInterestController::class, 'status']);
 });
 
 // -------------------------
@@ -216,3 +217,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
+// --------------------------------
+// Notifications
+// -------------------------------------
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/hourlies/{hourlyId}/subscribe', [HourlySubscriptionController::class, 'subscribe']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+});

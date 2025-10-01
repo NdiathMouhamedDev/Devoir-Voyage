@@ -6,6 +6,8 @@ use App\Models\Hourly;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Notifications\PlanningNotification;
+
 
 class InscriptionController extends Controller
 {
@@ -48,6 +50,8 @@ class InscriptionController extends Controller
             'address' => $validated['address'],        
             'statuts' => $validated['statuts'],
         ]);
+
+        $inscription->notify(new PlanningNotification($hourly, 'inscription'));
 
         return response()->json([
             'message' => 'Inscription réussie',

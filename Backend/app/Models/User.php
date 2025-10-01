@@ -73,4 +73,9 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withTimestamps();
     }
 
+    public function routeNotificationForWhatsApp()
+    {
+        return $this->phone; // le champ "phone" doit contenir le numéro format international
+    }
+
 }

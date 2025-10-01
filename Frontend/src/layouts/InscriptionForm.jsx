@@ -3,7 +3,7 @@ import api from "../api";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function InscriptionForm() {
-  const { id } = useParams();
+  const { id } = useParams(); // ID de l'horaire (hourly)
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
@@ -11,12 +11,13 @@ export default function InscriptionForm() {
     phone_number: "",
     address: "",
     payment: "cash",
-    statuts:'valid',
+    statuts: 'valid',
   });
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+  const [eventId, setEventId] = useState(null); // ID de l'événement parent
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -26,15 +27,16 @@ export default function InscriptionForm() {
     }
 
     // ✅ Vérifier si déjà inscrit via localStorage
-    const registeredEvents = JSON.parse(localStorage.getItem("registered_events") || "[]");
-    if (registeredEvents.includes(id)) {
+    const registeredHourlies = JSON.parse(localStorage.getItem("registered_hourlies") || "{}");
+    if (registeredHourlies[id]) {
       setIsAlreadyRegistered(true);
       setStatus({ 
         type: "info", 
-        text: "✓ Vous êtes déjà inscrit à cet événement" 
+        text: "✓ Vous êtes déjà inscrit à cet horaire" 
       });
     }
 
+    // Charger les infos utilisateur
     api
       .get("/user")
       .then((res) => {
@@ -49,6 +51,16 @@ export default function InscriptionForm() {
       })
       .catch(() => setStatus({ type: "error", text: "Impossible de charger vos informations" }))
       .finally(() => setLoadingUser(false));
+
+    // Récupérer l'ID de l'événement parent depuis l'API
+    api.get(`/event/${id}`)
+      .then((res) => {
+        const hourlyData = res.data;
+        setEventId(hourlyData.event_id);
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la récupération de l'horaire:", err);
+      });
   }, [id]);
 
   async function handleSubmit(e) {
@@ -61,7 +73,7 @@ export default function InscriptionForm() {
     }
 
     if (isAlreadyRegistered) {
-      setStatus({ type: "warning", text: "Vous êtes déjà inscrit à cet événement" });
+      setStatus({ type: "warning", text: "Vous êtes déjà inscrit à cet horaire" });
       return;
     }
 
@@ -86,15 +98,21 @@ export default function InscriptionForm() {
       });
 
       // ✅ Sauvegarder l'inscription dans localStorage
-      const registeredEvents = JSON.parse(localStorage.getItem("registered_events") || "[]");
-      registeredEvents.push(id);
-      localStorage.setItem("registered_events", JSON.stringify(registeredEvents));
+      const registeredHourlies = JSON.parse(localStorage.getItem("registered_hourlies") || "{}");
+      registeredHourlies[id] = true;
+      localStorage.setItem("registered_hourlies", JSON.stringify(registeredHourlies));
 
       setStatus({ type: "success", text: "🎉 Inscription réussie !" });
       setIsAlreadyRegistered(true);
       
+      // ✅ Redirection vers HourlyDetail avec le paramètre registered
       setTimeout(() => {
-        navigate(`/events`);
+        if (eventId) {
+          navigate(`/hourly/${eventId}?registered=${id}`);
+        } else {
+          // Fallback si l'event_id n'est pas disponible
+          navigate(`/events`);
+        }
       }, 2000);
     } catch (err) {
       console.error("Erreur:", err);
@@ -144,7 +162,7 @@ export default function InscriptionForm() {
           </h1>
           <p className="text-base-content/70">
             {isAlreadyRegistered 
-              ? "Vous êtes déjà inscrit à cet événement" 
+              ? "Vous êtes déjà inscrit à cet horaire" 
               : "Remplissez vos informations pour participer"}
           </p>
         </div>
@@ -447,7 +465,7 @@ export default function InscriptionForm() {
                     />
                   </svg>
                   <span className="text-sm">
-                    Vous ne pouvez vous inscrire qu'une seule fois par événement.
+                    Vous ne pouvez vous inscrire qu'une seule fois par horaire.
                   </span>
                 </div>
               )}
@@ -458,7 +476,13 @@ export default function InscriptionForm() {
         {/* Bouton retour */}
         <div className="text-center mt-6">
           <button
-            onClick={() => navigate(`/event/${id}`)}
+            onClick={() => {
+              if (eventId) {
+                navigate(`/hourly/${eventId}`);
+              } else {
+                navigate(-1);
+              }
+            }}
             className="btn btn-ghost gap-2"
           >
             <svg
@@ -475,7 +499,7 @@ export default function InscriptionForm() {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
             </svg>
-            Retour à l'événement
+            Retour aux horaires
           </button>
         </div>
       </div>

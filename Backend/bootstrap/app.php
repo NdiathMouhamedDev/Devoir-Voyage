@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-
+        
 
     ->withExceptions(function (Exceptions $exceptions) {
         // Gérer les erreurs d'authentification pour les routes API

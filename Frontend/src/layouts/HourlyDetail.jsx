@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getHourlyByEvent } from "../services/functions";
 import SmartCountdown from "../components/SmartCountdown";
 import echo from "../../echo";
@@ -10,10 +10,22 @@ import { toast } from 'react-hot-toast';
 export default function HourlyDetail() {
   const { id } = useParams();
   const [hourly, setHourly] = useState([]);
-  const [subscribedHourlies, setSubscribedHourlies] = useState({}); 
+  const [subscribedHourlies, setSubscribedHourlies] = useState({});
+  const [registeredHourlies, setRegisteredHourlies] = useState({});
   const { user } = useAuth();
+  const navigate = useNavigate();
 
+  const handleSubscribeform = async (hourlyItem) => {
+    const now = new Date();
+    const startDate = new Date(hourlyItem.startup);
 
+    if (startDate <= now) {
+      alert("Impossible de s'inscrire : le planning a déjà commencé ou est passé.");
+      return;
+    }
+
+    navigate(`/hourly/${hourlyItem.id}/inscrire`);
+  };
 
   const handleSubscribe = async (hourlyItem) => {
     const now = new Date();
@@ -35,25 +47,25 @@ export default function HourlyDetail() {
     }
 
     try {
-      // S'abonner au canal WebSocket
-      const channel = echo.channel(`hourly.${hourlyItem.id}`);
+      await api.post(`/hourlies/${hourlyItem.id}/subscribe`);
 
+      const channel = echo.channel(`hourly.${hourlyItem.id}`);
+      
       channel.listen('.HourlyUpdated', (event) => {
         console.log('Notification reçue:', event);
-
-        // Afficher une notification
-        alert(`${hourlyItem.title}: ${event.message}`);
-
-        // Ou utiliser react-hot-toast pour plus de style
-        // toast.success(`${hourlyItem.title}: ${event.message}`);
+        
+        toast.success(event.message, {
+          duration: 5000,
+          position: 'top-right',
+        });
       });
-
+      
       setSubscribedHourlies(prev => ({
         ...prev,
         [hourlyItem.id]: true
       }));
 
-      console.log(`Abonné aux notifications pour: ${hourlyItem.title}`);
+      alert(`Vous êtes maintenant abonné aux notifications pour "${hourlyItem.title}"`);
     } catch (error) {
       console.error("Erreur lors de l'abonnement:", error);
       alert("Erreur lors de l'activation des notifications");
@@ -67,7 +79,18 @@ export default function HourlyDetail() {
       setHourly(Array.isArray(data) ? data : [data]);
     });
 
-    // Nettoyage : se désabonner quand le composant est démonté
+    // Vérifier si l'utilisateur revient du formulaire d'inscription
+    const urlParams = new URLSearchParams(window.location.search);
+    const registered = urlParams.get('registered');
+    if (registered) {
+      setRegisteredHourlies(prev => ({
+        ...prev,
+        [registered]: true
+      }));
+      // Nettoyer l'URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     return () => {
       if (hourly) {
         hourly.forEach(h => {
@@ -96,7 +119,7 @@ export default function HourlyDetail() {
           minute: "2-digit"
         }) : null;
 
-        // ✅ Vérifier si CET horaire spécifique est abonné
+        const isRegistered = registeredHourlies[h.id] || false;
         const isSubscribed = subscribedHourlies[h.id] || false;
 
         return (
@@ -188,12 +211,68 @@ export default function HourlyDetail() {
                     )}
                   </div>
 
+                  {/* Bouton Inscription */}
+                  <button
+                    onClick={() => handleSubscribeform(h)}
+                    disabled={isRegistered}
+                    className={`btn w-full gap-2 ${
+                      isRegistered 
+                        ? 'btn-success btn-disabled' 
+                        : 'btn-secondary'
+                    }`}
+                  >
+                    {isRegistered ? (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Inscrit ✓
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          />
+                        </svg>
+                        Inscrivez-vous
+                      </>
+                    )}
+                  </button>
+
+                  {/* Bouton Notifications */}
                   <button
                     onClick={() => handleSubscribe(h)}
-                    disabled={isSubscribed} // ✅ Utiliser l'état spécifique à cet horaire
-                    className={`btn w-full gap-2 ${isSubscribed ? 'btn-success' : 'btn-accent'}`}
+                    disabled={isRegistered || isSubscribed}
+                    className={`btn w-full gap-2 ${
+                      isSubscribed 
+                        ? 'btn-success' 
+                        : isRegistered 
+                        ? 'btn-accent' 
+                        : 'btn-accent'
+                    }`}
                   >
-                    {isSubscribed ? ( // ✅ Utiliser l'état spécifique à cet horaire
+                    {isSubscribed ? (
                       <>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -227,10 +306,70 @@ export default function HourlyDetail() {
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                           />
                         </svg>
-                        Activer les notifications
+                        {isRegistered 
+                          ? 'Activer les notifications' 
+                          : 'Inscrivez-vous d\'abord'}
                       </>
                     )}
                   </button>
+
+                  {/* Indication visuelle */}
+                  {!isRegistered && (
+                    <div className="alert alert-info shadow-sm">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="stroke-current flex-shrink-0 w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">Inscrivez-vous pour activer les notifications</span>
+                    </div>
+                  )}
+
+                  {isRegistered && !isSubscribed && (
+                    <div className="alert alert-warning shadow-sm">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="stroke-current flex-shrink-0 w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                      </svg>
+                      <span className="text-sm">Activez les notifications pour être alerté</span>
+                    </div>
+                  )}
+
+                  {isSubscribed && (
+                    <div className="alert alert-success shadow-sm">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="stroke-current flex-shrink-0 w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">Vous recevrez les notifications pour cet horaire</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-center">
