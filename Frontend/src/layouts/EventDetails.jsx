@@ -123,7 +123,9 @@ export default function EventDetails() {
           <div className="card-body">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
               <h1 className="card-title text-3xl">{event.title}</h1>
+              {/* ✅ Ajout de la key pour forcer la réinitialisation du composant */}
               <InterestToggleButton
+                key={`${id}-${event.is_interested}-${event.interested_count}`}
                 eventId={id}
                 initialInterested={event.is_interested}
                 initialCount={event.interested_count}

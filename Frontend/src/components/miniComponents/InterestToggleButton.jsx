@@ -1,29 +1,35 @@
 import { useState, useEffect } from "react";
 import api from "../../api";
+import { useEvents } from "../../contexts/EventsContext";
 
-export default function InterestToggleButton({ eventId, initialInterested = false, initialCount = 0 }) {
-  const [isInterested, setIsInterested] = useState(initialInterested);
-  const [interestedCount, setInterestedCount] = useState(initialCount);
+export default function InterestToggleButton({ 
+  eventId, 
+  initialInterested = false, 
+  initialCount = 0 
+}) {
+  // ✅ Utiliser le contexte global
+  const { updateEventInterest, getEventInterest } = useEvents();
+  
+  // ✅ Vérifier d'abord le state global, sinon utiliser les props
+  const globalState = getEventInterest(eventId);
+  const [isInterested, setIsInterested] = useState(
+    globalState?.is_interested ?? initialInterested
+  );
+  const [interestedCount, setInterestedCount] = useState(
+    globalState?.interested_count ?? initialCount
+  );
   const [loading, setLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  const isAuthenticated = !!localStorage.getItem('token');
 
+  // ✅ Synchroniser avec le state global
   useEffect(() => {
-    if (!eventId) return;
-
-    const checkInterestStatus = async () => {
-      try {
-        // ✅ Appel PUBLIC - pas besoin d'auth
-        const response = await api.get(`/events/${eventId}/interest-status`);
-        setIsInterested(response.data.is_interested);
-        setInterestedCount(response.data.interested_count);
-        setIsAuthenticated(response.data.is_authenticated);
-      } catch (error) {
-        console.error("Erreur lors de la vérification du statut:", error);
-      }
-    };
-
-    checkInterestStatus();
-  }, [eventId]);
+    const globalState = getEventInterest(eventId);
+    if (globalState) {
+      setIsInterested(globalState.is_interested);
+      setInterestedCount(globalState.interested_count);
+    }
+  }, [eventId, getEventInterest, globalState]);
 
   const handleToggleInterest = async () => {
     if (!eventId) {
@@ -31,35 +37,42 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
       return;
     }
 
-    // ✅ Vérifier si l'utilisateur est connecté
-    if (!localStorage.getItem('token')) {
+    const token = localStorage.getItem('token');
+    if (!token) {
       alert("Vous devez être connecté pour marquer votre intérêt");
       window.location.href = '/login';
       return;
     }
 
     setLoading(true);
-
     try {
       let response;
-      
       if (isInterested) {
         response = await api.delete(`/events/${eventId}/interested`);
       } else {
         response = await api.post(`/events/${eventId}/interested`);
       }
+      
+      const newIsInterested = response.data.is_interested;
+      const newCount = response.data.interested_count;
 
-      setIsInterested(response.data.is_interested);
-      setInterestedCount(response.data.interested_count);
+      // ✅ Mettre à jour l'état local
+      setIsInterested(newIsInterested);
+      setInterestedCount(newCount);
+
+      // ✅ Mettre à jour le state global (synchronise tous les composants)
+      updateEventInterest(eventId, newIsInterested, newCount);
       
     } catch (error) {
       console.error("Erreur lors du toggle d'intérêt:", error);
       
       if (error.response?.status === 401) {
-        alert("Vous devez être connecté pour marquer votre intérêt");
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('user');
+        alert("Votre session a expiré. Veuillez vous reconnecter.");
         window.location.href = '/login';
       } else if (error.response?.status === 403) {
-        // ✅ L'utilisateur n'est pas inscrit
         alert("Vous devez vous inscrire à cet événement avant de marquer votre intérêt");
       } else {
         alert(error.response?.data?.message || "Une erreur est survenue");
@@ -69,16 +82,21 @@ export default function InterestToggleButton({ eventId, initialInterested = fals
     }
   };
 
-  
   return (
     <div className="flex items-center gap-2">
       <button
         onClick={handleToggleInterest}
-        disabled={loading || !isAuthenticated}
+        disabled={!isAuthenticated || loading}
         className={`btn btn-sm gap-2 ${
           isInterested ? 'btn-error btn-outline' : 'btn-success btn-outline'
         }`}
-        title={!isAuthenticated ? "Connectez-vous pour marquer votre intérêt" : ""}
+        title={
+          !isAuthenticated 
+            ? "Connectez-vous pour marquer votre intérêt" 
+            : isInterested 
+              ? "Retirer mon intérêt" 
+              : "Marquer mon intérêt"
+        }
       >
         {loading ? (
           <span className="loading loading-spinner loading-xs"></span>

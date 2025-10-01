@@ -11,25 +11,28 @@ import VerifyEmail from "./layouts/VerifyEmail";
 import AdminVerificationDebug from "./pages/AdminVerificationDebug";
 import InscriptionForm from "./layouts/InscriptionForm";
 import RegisterHourly from "./layouts/RegisterHourly";
+import { EventsProvider } from './contexts/EventsContext';
 
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/event/:id" element={<EventDetails />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/hourly/:id" element={<HourlyDetail />} />
-        <Route path="/hourly/:id/inscrire" element={<InscriptionForm />} />
-        <Route path="/events/:id/hourly" element={<RegisterHourly />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/debug" element={<AdminVerificationDebug />} />
-      </Routes>
+      <EventsProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/event/:id" element={<EventDetails />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/hourly/:id" element={<HourlyDetail />} />
+          <Route path="/hourly/:id/inscrire" element={<InscriptionForm />} />
+          <Route path="/events/:id/hourly" element={<RegisterHourly />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/debug" element={<AdminVerificationDebug />} />
+        </Routes>
+      </EventsProvider>
     </BrowserRouter>
   );
 }
