@@ -11,7 +11,7 @@ export default function Profile() {
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null); // État séparé pour le fichier
+  const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,6 +23,7 @@ export default function Profile() {
     password_confirmation: ''
   });
   const [message, setMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('info');
 
   useEffect(() => {
     loadProfile();
@@ -46,7 +47,6 @@ export default function Profile() {
         address: profileRes.data.user.address || ''
       }));
       
-      // Reset preview when loading profile
       setPreviewImage(null);
       setSelectedFile(null);
     } catch (err) {
@@ -67,13 +67,11 @@ export default function Profile() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Vérification du type de fichier
       if (!file.type.startsWith('image/')) {
         setError('Veuillez sélectionner un fichier image valide');
         return;
       }
       
-      // Vérification de la taille (par exemple, max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError('La taille du fichier ne doit pas dépasser 5MB');
         return;
@@ -81,7 +79,7 @@ export default function Profile() {
       
       setSelectedFile(file);
       setPreviewImage(URL.createObjectURL(file));
-      setError(''); // Clear any previous errors
+      setError('');
     }
   };
 
@@ -93,9 +91,7 @@ export default function Profile() {
     try {
       const formDataToSend = new FormData();
       
-      // Ajouter tous les champs de texte
       Object.keys(formData).forEach(key => {
-        // Exclure les champs de mot de passe du formulaire principal
         if (!['current_password', 'password', 'password_confirmation'].includes(key)) {
           if (formData[key] !== null && formData[key] !== '') {
             formDataToSend.append(key, formData[key]);
@@ -103,15 +99,8 @@ export default function Profile() {
         }
       });
 
-      // Ajouter le fichier image seulement s'il y en a un nouveau
       if (selectedFile) {
         formDataToSend.append('profile_photo', selectedFile);
-      }
-
-      // Pour débugger - voir ce qui est envoyé
-      console.log('FormData contents:');
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value);
       }
 
       const response = await api.post('/profile', formDataToSend, {
@@ -123,11 +112,9 @@ export default function Profile() {
       setUser(response.data.user);
       setMessage('Profil mis à jour avec succès !');
       
-      // Reset file selection after successful update
       setSelectedFile(null);
       setPreviewImage(null);
       
-      // Reset file input
       const fileInput = document.getElementById('profile_photo');
       if (fileInput) {
         fileInput.value = '';
@@ -144,7 +131,6 @@ export default function Profile() {
     setMessage('');
     setError('');
 
-    // Validation côté client
     if (formData.password !== formData.password_confirmation) {
       setError('Les mots de passe ne correspondent pas');
       return;
@@ -174,7 +160,6 @@ export default function Profile() {
     }
   };
 
-  // Fonction pour gérer la suppression de l'image preview
   const removePreviewImage = () => {
     setPreviewImage(null);
     setSelectedFile(null);
@@ -184,228 +169,370 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <div className="text-center p-8">Chargement...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <div className="text-center space-y-4">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <div className="text-base-content text-lg">Chargement...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Mon Profil</h1>
-        <DeconnexionBTN/>
+    <div className="min-h-screen bg-base-200">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        
+        {/* Header */}
+        <div className="card bg-base-100 shadow-xl mb-6">
+          <div className="card-body">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-base-content flex items-center gap-3">
+                  <span className="text-primary">👤</span>
+                  Mon Profil
+                </h1>
+                <p className="text-base-content/60 mt-2">
+                  Gérez vos informations personnelles
+                </p>
+              </div>
+              <DeconnexionBTN />
+            </div>
+          </div>
+        </div>
+
+        {/* Messages */}
         {message && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {message}
+          <div className="alert alert-success shadow-lg mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{message}</span>
           </div>
         )}
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="alert alert-error shadow-lg mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Informations du profil */}
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Informations personnelles</h2>
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <img
-                  src={
-                    previewImage || 
-                    (user?.profile_photo ? storageUrl(user.profile_photo) : 
-                    'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y')
-                  }
-                  alt="Profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+        {/* Tabs Navigation */}
+        <div className="tabs tabs-boxed bg-base-100 shadow-lg mb-6 p-2">
+          <a 
+            className={`tab tab-lg ${activeTab === 'info' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('info')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Informations
+          </a>
+          <a 
+            className={`tab tab-lg ${activeTab === 'security' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('security')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Sécurité
+          </a>
+          <a 
+            className={`tab tab-lg ${activeTab === 'events' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('events')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Mes événements
+          </a>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'info' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Photo de profil */}
+            <div className="card bg-base-100 shadow-xl">
+              <div className="card-body items-center text-center">
+                <h2 className="card-title mb-4">Photo de profil</h2>
+                <div className="avatar">
+                  <div className="w-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 relative">
+                    <img
+                      src={
+                        previewImage || 
+                        (user?.profile_photo ? storageUrl(user.profile_photo) : 
+                        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y')
+                      }
+                      alt="Profile"
+                    />
+                    {previewImage && (
+                      <button
+                        type="button"
+                        onClick={removePreviewImage}
+                        className="btn btn-circle btn-xs btn-error absolute top-0 right-0"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="profile_photo"
+                  name="profile_photo"
+                  onChange={handleFileChange}
+                  accept="image/jpeg,image/png,image/jpg,image/gif"
+                  className="file-input file-input-bordered file-input-primary w-full max-w-xs mt-4"
                 />
-                <label htmlFor="profile_photo" className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                </label>
-                {previewImage && (
-                  <button
-                    type="button"
-                    onClick={removePreviewImage}
-                    className="absolute top-0 left-0 bg-red-600 text-white p-1 rounded-full hover:bg-red-700"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
+                <div className="text-sm text-base-content/60 mt-2">
+                  JPG, PNG ou GIF (Max. 5MB)
+                </div>
+
+                {/* QR Code */}
+                {user?.qr_code && (
+                  <div className="divider">QR Code</div>
+                )}
+                {user?.qr_code && (
+                  <div className="mt-4">
+                    <img
+                      src={storageUrl(user.qr_code)}
+                      alt="QR Code"
+                      className="w-48 h-48 mx-auto"
+                    />
+                    <p className="text-sm text-base-content/60 mt-2">
+                      Scannez pour partager vos infos
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="file"
-                id="profile_photo"
-                name="profile_photo"
-                onChange={handleFileChange}
-                accept="image/jpeg,image/png,image/jpg,image/gif"
-                className="hidden"
-              />
 
-              <div>
-                <label className="block text-gray-700 mb-2">Nom</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
-                  required
-                />
+            {/* Formulaire */}
+            <div className="card bg-base-100 shadow-xl lg:col-span-2">
+              <div className="card-body">
+                <h2 className="card-title mb-4">Informations personnelles</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="form-control  mx-5">
+                      <label className="label">
+                        <span className="label-text font-semibold">Nom complet</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="input input-bordered"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-control  mx-5">
+                      <label className="label">
+                        <span className="label-text font-semibold">Email</span>
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="input input-bordered"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="form-control  mx-5">
+                      <label className="label">
+                        <span className="label-text font-semibold">Téléphone</span>
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone_number"
+                        value={formData.phone_number}
+                        onChange={handleInputChange}
+                        className="input input-bordered"
+                        placeholder="+221 XX XXX XX XX"
+                      />
+                    </div>
+
+                    <div className="form-control  mx-5">
+                      <label className="label">
+                        <span className="label-text font-semibold">Adresse</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        className="input input-bordered"
+                        placeholder="Votre adresse"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-control  mx-5">
+                    <label className="label">
+                      <span className="label-text font-semibold">Biographie</span>
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      className="textarea textarea-bordered h-24"
+                      placeholder="Parlez-nous de vous..."
+                    ></textarea>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-full"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Mettre à jour le profil
+                  </button>
+                </form>
               </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2">Téléphone</label>
-                <input
-                  type="tel"
-                  name="phone_number"
-                  value={formData.phone_number}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2">Adresse</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2">Bio</label>
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
-                  rows="3"
-                  placeholder="Parlez-nous de vous..."
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-              >
-                Mettre à jour le profil
-              </button>
-            </form>
+            </div>
           </div>
+        )}
 
-          {/* Changement de mot de passe et QR Code */}
-          <div className="space-y-8">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">Changer le mot de passe</h2>
+        {activeTab === 'security' && (
+          <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
+            <div className="card-body">
+              <h2 className="card-title mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Changer le mot de passe
+              </h2>
               <form onSubmit={handlePasswordChange} className="space-y-4">
-                <div>
-                  <label className="block text-gray-700 mb-2">Mot de passe actuel</label>
+                <div className="form-control  mx-2">
+                  <label className="label">
+                    <span className="label-text font-semibold">Mot de passe actuel</span>
+                  </label>
                   <input
                     type="password"
                     name="current_password"
                     value={formData.current_password}
                     onChange={handleInputChange}
-                    className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
+                    className="input input-bordered"
                     required
                   />
                 </div>
 
-                <div>
-                  <label className="block text-gray-700 mb-2">Nouveau mot de passe</label>
+                <div className="form-control  mx-2">
+                  <label className="label">
+                    <span className="label-text font-semibold">Nouveau mot de passe</span>
+                  </label>
                   <input
                     type="password"
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
+                    className="input input-bordered"
                     minLength="8"
                     required
                   />
-                  <p className="text-sm text-gray-500 mt-1">Au moins 8 caractères</p>
+                  <label className="label">
+                    <span className="label-text-alt">Au moins 8 caractères</span>
+                  </label>
                 </div>
 
-                <div>
-                  <label className="block text-gray-700 mb-2">Confirmer le mot de passe</label>
+                <div className="form-control  mx-2  mx-5">
+                  <label className="label">
+                    <span className="label-text font-semibold">Confirmer le mot de passe</span>
+                  </label>
                   <input
                     type="password"
                     name="password_confirmation"
                     value={formData.password_confirmation}
                     onChange={handleInputChange}
-                    className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none"
+                    className="input input-bordered"
                     required
                   />
                 </div>
 
+                <div className="alert alert-info">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>Votre mot de passe doit contenir au moins 8 caractères pour plus de sécurité.</span>
+                </div>
+
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
+                  className="btn btn-primary w-full"
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                   Changer le mot de passe
                 </button>
               </form>
             </div>
-
-            {user?.qr_code && (
-              <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-xl font-semibold mb-4">Mon QR Code</h2>
-                <div className="flex justify-center">
-                  <img
-                    src={storageUrl(user.qr_code)}
-                    alt="QR Code"
-                    className="w-48 h-48"
-                  />
-                </div>
-                <p className="text-center mt-4 text-sm text-gray-600">
-                  Scannez ce QR code pour obtenir vos informations (nom, email, téléphone, adresse, bio)
-                </p>
-              </div>
-            )}
           </div>
-        </div>
+        )}
 
-        {/* Événements intéressés */}
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">Mes événements intéressés</h2>
-          {interestedEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {interestedEvents.map(event => (
-                <div key={event.id} className="border rounded p-4 hover:shadow-md transition duration-200">
-                  <h3 className="font-semibold">{event.title}</h3>
-                  <p className="text-gray-600">{event.date}</p>
-                  <button
-                    onClick={() => navigate(`/event/${event.id}`)}
-                    className="mt-2 text-blue-600 hover:text-blue-800 transition duration-200"
+        {activeTab === 'events' && (
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Mes événements intéressés
+              </h2>
+              {interestedEvents.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {interestedEvents.map(event => (
+                    <div key={event.id} className="card bg-base-200 shadow-md hover:shadow-xl transition-shadow">
+                      <div className="card-body">
+                        <h3 className="card-title text-lg">{event.title}</h3>
+                        <div className="flex items-center gap-2 text-base-content/70">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-sm">{event.date}</span>
+                        </div>
+                        <div className="card-actions justify-end mt-4">
+                          <button
+                            onClick={() => navigate(`/event/${event.id}`)}
+                            className="btn btn-primary btn-sm"
+                          >
+                            Voir les détails
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">📅</div>
+                  <p className="text-base-content/60 text-lg">Aucun événement intéressé pour le moment.</p>
+                  <button 
+                    onClick={() => navigate('/events')}
+                    className="btn btn-primary mt-4"
                   >
-                    Voir les détails
+                    Découvrir des événements
                   </button>
                 </div>
-              ))}
+              )}
             </div>
-          ) : (
-            <p className="text-gray-500">Aucun événement intéressé pour le moment.</p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

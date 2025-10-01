@@ -1,17 +1,25 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-// use Illuminate\Contracts\Auth\MustVerifyEmail; // ❌ Supprimé temporairement
+use Illuminate\Contracts\Auth\MustVerifyEmail; 
+use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\CustomVerifyEmail;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
-class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
+
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail());
+    }
     protected $fillable = [
         'name',
         'email',
@@ -20,10 +28,6 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
         'phone_number',
         'address',
-        // 'admin_request_status',
-        // 'admin_requested_at',
-        // 'admin_approved_at',
-        // 'admin_verification_token',
     ];
 
     public function isAdmin()
@@ -58,15 +62,20 @@ class User extends Authenticatable // ❌ Supprimé "implements MustVerifyEmail"
         ])->save();
     }
 
-    // public function interestedEvents()
-    // {
-    //     return $this->belongsToMany(Event::class, 'user_id', 'event_id')
-    //                 ->withTimestamps();
-    // }
-
     public function inscriptions() {
         return $this->hasMany(Inscription::class);
     }
 
+
+    public function interestedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'interested_event_user', 'user_id', 'event_id')
+            ->withTimestamps();
+    }
+
+    public function routeNotificationForWhatsApp()
+    {
+        return $this->phone_number; // le champ "phone" doit contenir le numéro format international
+    }
 
 }

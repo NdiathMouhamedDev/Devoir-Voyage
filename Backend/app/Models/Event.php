@@ -23,17 +23,10 @@ class Event extends Model
      */
     public function interestedUsers()
     {
-        return $this->belongsToMany(User::class, 'inscriptions','event_id', 'user_id')
+        return $this->belongsToMany(User::class, 'interested_event_user','event_id', 'user_id')
                     ->withTimestamps();
     }
 
-    /**
-     * Utilisateur qui a créé l'événement on v2
-     */
-    // public function creator()
-    // {
-    //     return $this->belongsTo(User::class, 'created_by');
-    // }
 
     /**
      * Vérifier si un utilisateur est intéressé par cet événement
@@ -43,15 +36,6 @@ class Event extends Model
         return $this->interestedUsers()->where('user_id', $userId)->exists();
     }
 
-    public function interestedEvents()
-    {
-        return $this->belongsToMany(
-            User::class,        // modèle cible
-            'event_user',       // table pivot
-            'event_id',         // clé étrangère vers events
-            'user_id'           // clé étrangère vers users
-        );
-    }
 
 
     /**
@@ -71,5 +55,7 @@ class Event extends Model
     {
         return $this->hasMany(Inscription::class);
     }
+
+
 
 }

@@ -19,14 +19,28 @@ class VerifyEmailController extends Controller
             'url' => $request->fullUrl()
         ]);
 
+        
         try {
             // Trouver l'utilisateur
             $user = User::find($id);
             
             if (!$user) {
-                Log::warning('User not found', ['id' => $id]);
                 return redirect('http://localhost:5173/email-verification?status=user_not_found');
             }
+
+             if (!hash_equals(sha1($user->getEmailForVerification()), (string) $hash)) {
+                return redirect('http://localhost:5173/email-verification?status=invalid_hash');
+            }
+
+            if ($user->hasVerifiedEmail()) {
+                return redirect('http://localhost:5173/dashboard?verified=already');
+            }
+
+            if ($user->markEmailAsVerified()) {
+                event(new Verified($user));
+            }
+
+            return redirect('http://localhost:5173/dashboard?verified=success');
 
             Log::info('User found', [
                 'user_id' => $user->id,
@@ -118,4 +132,6 @@ class VerifyEmailController extends Controller
             return redirect('http://localhost:5173/email-verification?status=server_error');
         }
     }
+
+
 }

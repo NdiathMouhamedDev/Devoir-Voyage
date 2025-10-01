@@ -17,7 +17,7 @@ return new class extends Migration
         $table->foreignId('user_id')->constrained()->onDelete('cascade');
         $table->foreignId('event_id')->constrained()->onDelete('cascade');
         $table->foreignId('hourly_id')->nullable()->constrained()->onDelete('cascade'); 
-        $table->string('phone_number')->unique();
+        $table->string('phone_number');
         $table->string('address')->nullable();
         $table->enum('payment', ['cash', 'online'])->default('cash');
         $table->enum('statuts', ['pending', 'valid', 'canceled'])->default('pending');

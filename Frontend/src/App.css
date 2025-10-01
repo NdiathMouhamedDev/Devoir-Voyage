@@ -1,5 +1,3 @@
-/* @import '@fullcalendar/core/main.css'; //donne une erreure a regle
-@import '@fullcalendar/daygrid/main.css'; */
 @import "tailwindcss";
 @plugin "daisyui";
 
@@ -39,8 +37,6 @@
   --depth: 0;
   --noise: 1;
 }
-
-
 
 @plugin "daisyui/theme" {
   name: "dark";
@@ -88,4 +84,57 @@
   text-decoration: none;
 }
 
+html{
+  scroll-behavior: smooth;
+}
 
+/* Styles personnalisés DaisyUI pour FullCalendar */
+.fullcalendar-wrapper {
+  --fc-border-color: oklch(var(--bc) / 0.2);
+  --fc-button-bg-color: oklch(var(--p));
+  --fc-button-border-color: oklch(var(--p));
+  --fc-button-hover-bg-color: oklch(var(--pf));
+  --fc-button-hover-border-color: oklch(var(--pf));
+  --fc-button-active-bg-color: oklch(var(--pf));
+  --fc-today-bg-color: oklch(var(--p) / 0.1);
+}
+
+.fullcalendar-wrapper .fc-button {
+  text-transform: none;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.fullcalendar-wrapper .fc-button-primary:not(:disabled):active,
+.fullcalendar-wrapper .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: oklch(var(--pf));
+  border-color: oklch(var(--pf));
+}
+
+.fullcalendar-wrapper .fc-daygrid-event {
+  border-radius: 0.25rem;
+  padding: 2px 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.fullcalendar-wrapper .fc-daygrid-event:hover {
+  opacity: 0.8;
+}
+
+.fullcalendar-wrapper .fc-col-header-cell {
+  background-color: oklch(var(--b2));
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  padding: 0.75rem 0;
+}
+
+.fullcalendar-wrapper .fc-day-today {
+  background-color: oklch(var(--p) / 0.05) !important;
+}
+
+.fullcalendar-wrapper .fc-scrollgrid {
+  border-color: oklch(var(--bc) / 0.2);
+}

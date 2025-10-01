@@ -1,101 +1,254 @@
 import { useState, useEffect } from "react";
 import api from "../api";
+import InterestToggleButton from "./miniComponents/InterestToggleButton";
 
-function InterestToggleButton({ eventId, initialInterested = false, initialCount = 0 }) {
-    const [isInterested, setIsInterested] = useState(initialInterested);
-    const [interestedCount, setInterestedCount] = useState(initialCount);
-    const [loading, setLoading] = useState(false);
 
-    const token = localStorage.getItem('token');
-
-    const handleToggleInterest = async () => {
-        if (!token) {
-            alert("Vous devez être connecté pour marquer votre intérêt");
-            window.location.href = '/login';
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const response = isInterested
-                ? await api.delete(`/events/${eventId}/interested`)
-                : await api.post(`/events/${eventId}/interested`);
-
-            setIsInterested(response.data.is_interested);
-            setInterestedCount(response.data.interested_count);
-        } catch (error) {
-            console.error("Erreur lors du toggle d'intérêt:", error);
-            alert(error.response?.data?.message || "Une erreur s'est produite");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex flex-col items-center gap-1">
-            {token ? (
-                <button
-                    onClick={handleToggleInterest}
-                    disabled={loading}
-                    className={`btn btn-xs ${isInterested ? 'btn-error' : 'btn-primary'}`}
-                >
-                    {loading ? 'Chargement...' : isInterested ? '💔 Je ne suis plus intéressé' : '❤️ Je suis intéressé'}
-                </button>
-            ) : (
-                <button
-                    onClick={() => window.location.href = '/login'}
-                    className="btn btn-xs btn-outline"
-                >
-                    ❤️ Je suis intéressé
-                </button>
-            )}
-            <span className="text-xs">
-                👥 {interestedCount} {interestedCount <= 1 ? 'personne intéressée' : 'personnes intéressées'}
-            </span>
-        </div>
-    );
-}
 
 export default function MiniEvents() {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const loadEvents = async () => {
-        try {
-            const res = await api.get('/events/public');
-            const allEvents = Array.isArray(res.data) ? res.data : res.data.data || [];
-            setEvents(allEvents.slice(0, 5));
-        } catch (err) {
-            console.error("Erreur lors du chargement des événements:", err);
-            setEvents([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const loadEvents = async () => {
+    try {
+      const res = await api.get('/events/public');
+      const allEvents = Array.isArray(res.data) ? res.data : res.data.data || [];
+      setEvents(allEvents.slice(0, 6));
+    } catch (err) {
+      console.error("Erreur lors du chargement des événements:", err);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => { loadEvents(); }, []);
+  useEffect(() => {
+    loadEvents();
+  }, []);
 
-    const formatDate = (dateString) =>
-        new Date(dateString).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString('fr-FR', { 
+      day: 'numeric', 
+      month: 'short',
+      year: 'numeric'
+    });
 
-    if (loading) return <div className="card w-96 shadow-xl p-4">Chargement...</div>;
-    if (!events.length) return <div className="card w-96 shadow-xl p-4">Aucun événement disponible</div>;
-
+  if (loading) {
     return (
-        <div className="space-y-4 w-96">
-            {events.map(event => (
-                <div key={event.id} className="card bg-base-100 shadow-md p-3 flex flex-col gap-2">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h3 className="font-semibold">{event.title}</h3>
-                            <div className="text-xs text-gray-500">
-                                📅 {formatDate(event.date)} {event.location && <>📍 {event.location}</>}
-                            </div>
-                        </div>
-                    </div>
-                    {event.description && <p className="text-sm text-gray-700">{event.description.substring(0, 100)}...</p>}
-                </div>
-            ))}
+      <section id="events" className="py-16 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+          </div>
         </div>
+      </section>
     );
+  }
+
+  if (!events.length) {
+    return (
+      <section id="events" className="py-16 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="card bg-base-100 shadow-xl max-w-md mx-auto">
+            <div className="card-body items-center text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-16 w-16 text-base-content/20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-base-content/70">Aucun événement disponible</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="events" className="py-16 bg-base-200">
+      <div className="container mx-auto px-4">
+        {/* Header de la section */}
+        <div className="text-center mb-12">
+          <div className="badge badge-primary badge-lg mb-4">Événements</div>
+          <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-4">
+            Découvrez nos prochains événements
+          </h2>
+          <p className="text-base-content/70 text-lg max-w-2xl mx-auto">
+            Rejoignez-nous pour des moments inoubliables et des expériences enrichissantes
+          </p>
+        </div>
+
+        {/* Carousel d'événements */}
+        <div className="relative">
+          {/* Grid responsive avec scroll horizontal sur mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {events.map(event => (
+              <div 
+                key={event.id} 
+                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+              >
+                {/* Image de l'événement */}
+                <figure className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+                  {event.image ? (
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-20 w-20 text-base-content/20"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                  
+                  {/* Badge catégorie en overlay */}
+                  {event.category && (
+                    <div className="absolute top-3 right-3">
+                      <div className="badge badge-primary">{event.category}</div>
+                    </div>
+                  )}
+                </figure>
+
+                <div className="card-body">
+                  {/* Titre */}
+                  <h3 className="card-title text-lg line-clamp-2 min-h-[3.5rem]">
+                    {event.title}
+                  </h3>
+
+                  {/* Badges date et localisation */}
+                  <div className="flex flex-wrap gap-2 my-3">
+                    <div className="badge badge-outline gap-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      {formatDate(event.date || event.start_at)}
+                    </div>
+                    
+                    {event.location && (
+                      <div className="badge badge-outline gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        <span className="truncate max-w-[120px]">{event.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {event.description && (
+                    <p className="text-sm text-base-content/70 line-clamp-3 mb-4 min-h-[4.5rem]">
+                      {event.description}
+                    </p>
+                  )}
+
+                  {/* Actions */}
+                  <div className="card-actions justify-between items-center mt-auto pt-4 border-t border-base-300">
+                    <InterestToggleButton
+                      eventId={event.id}
+                      initialInterested={event.is_interested}
+                      initialCount={event.interested_count}
+                    />
+                    
+                    <a 
+                      href={`/event/${event.id}`} 
+                      className="btn btn-primary btn-sm gap-2"
+                    >
+                      Voir plus
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bouton voir tous les événements */}
+        <div className="text-center mt-12">
+          <a 
+            href="/events" 
+            className="btn btn-primary btn-lg gap-2"
+          >
+            Voir tous les événements
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
 }

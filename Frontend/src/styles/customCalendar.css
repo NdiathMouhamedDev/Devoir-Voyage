@@ -1,0 +1,369 @@
+/* FullCalendar Custom Theme - DaisyUI Integration */
+
+/* === CONTAINER PRINCIPAL === */
+.fc {
+  background-color: oklch(var(--color-base-100));
+  color: oklch(var(--color-base-content));
+  font-family: inherit;
+  border-radius: var(--radius-box);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* === TOOLBAR / EN-TÊTE === */
+.fc-toolbar {
+  background: linear-gradient(135deg, 
+    oklch(var(--color-primary)) 0%, 
+    oklch(var(--color-secondary)) 100%);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-box);
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.fc-toolbar-title {
+  color: oklch(var(--color-primary-content)) !important;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.fc-toolbar-chunk {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* === BOUTONS === */
+.fc-button {
+  background-color: oklch(var(--color-base-100)) !important;
+  color: oklch(var(--color-primary)) !important;
+  border: var(--border) solid oklch(var(--color-primary) / 0.3) !important;
+  border-radius: var(--radius-field) !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 600;
+  text-transform: capitalize;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.fc-button:hover {
+  background-color: oklch(var(--color-primary) / 0.1) !important;
+  border-color: oklch(var(--color-primary)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.fc-button:active {
+  transform: translateY(0);
+}
+
+.fc-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fc-button-active {
+  background-color: oklch(var(--color-primary)) !important;
+  color: oklch(var(--color-primary-content)) !important;
+  border-color: oklch(var(--color-primary)) !important;
+}
+
+.fc-button-group {
+  border-radius: var(--radius-field);
+  overflow: hidden;
+}
+
+/* === GRILLE DU CALENDRIER === */
+.fc-scrollgrid {
+  border: var(--border) solid var(--color-base-300) / 0.5 !important;
+  border-radius: var(--radius-box);
+  overflow: hidden;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: oklch(var(--color-base-300) / 0.3) !important;
+}
+
+/* === EN-TÊTES DES JOURS === */
+.fc-col-header {
+  background: linear-gradient(135deg, 
+    var(--color-primary), 
+    var(--color-accent)) !important;
+}
+
+.fc-col-header-cell {
+  padding: 1rem 0.5rem;
+  background-color: var(--color-primary) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.fc-col-header-cell-cushion {
+  color: oklch(var(--color-secondary));
+}
+
+/* === CELLULES DES JOURS === */
+.fc-daygrid-day {
+  background-color: oklch(var(--color-base-100));
+  transition: background-color 0.2s ease;
+}
+
+.fc-daygrid-day:hover {
+  background-color:var(--color-base-200);
+}
+
+.fc-daygrid-day-frame {
+  height: 6rem !important;
+  padding: 0.5rem;
+  border:solid 1px var(--color-emerald-400);
+}
+
+/* === NUMÉROS DES JOURS === */
+.fc-daygrid-day-number {
+  color: var(--color-base-content) !important;
+  font-weight: 600;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.fc-daygrid-day-top {
+  justify-content: center;
+}
+
+/* === JOUR ACTUEL === */
+.fc-day-today {
+  background-color: oklch(var(--color-info) / 0.08) ;
+  position: relative;
+}
+
+.fc-day-today::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--color-primary), 
+    var(--color-accent));
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: linear-gradient(135deg, 
+    var(--color-primary), 
+    var(--color-accent)) !important;
+  color: oklch(var(--color-primary-content));
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* === JOURS HORS DU MOIS === */
+.fc-day-other {
+  background-color: var(--color-base-100) / 0.5;
+}
+
+.fc-day-other .fc-daygrid-day-number {
+  color: var(--color-base-content) / 0.4;
+}
+
+/* === WEEKEND === */
+.fc-day-sat,
+.fc-day-sun {
+  background-color: var(--color-base-200) / 0.5;
+}
+
+/* === ÉVÉNEMENTS === */
+.fc-event {
+  background: linear-gradient(1deg, 
+    var(--color-secondary), 
+    var(--color-primary)) !important;
+  border: none !important;
+  border-radius: var(--radius-field) !important;
+  padding: 0.375rem 0.625rem !important;
+  margin: 0.125rem !important;
+  font-size: 0.813rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  width:10vw auto;
+}
+
+.fc-event:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  filter: brightness(1.1);
+}
+
+.fc-event-main {
+  color: var(--color-secondary-content);
+}
+
+.fc-event-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-event-time {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Variantes d'événements (classes personnalisées) */
+.fc-event.event-success {
+  background: linear-gradient(135deg, 
+    oklch(var(--color-success)), 
+    oklch(var(--color-success) / 0.8)) !important;
+}
+
+.fc-event.event-warning {
+  background: linear-gradient(135deg, 
+    oklch(var(--color-warning)), 
+    oklch(var(--color-warning) / 0.8)) !important;
+}
+
+.fc-event.event-error {
+  background: linear-gradient(135deg, 
+    oklch(var(--color-error)), 
+    oklch(var(--color-error) / 0.8)) !important;
+}
+
+.fc-event.event-info {
+  background: linear-gradient(135deg, 
+    oklch(var(--color-info)), 
+    oklch(var(--color-info) / 0.8)) !important;
+}
+
+/* === INDICATEUR "PLUS D'ÉVÉNEMENTS" === */
+.fc-daygrid-more-link {
+  color: oklch(var(--color-primary)) !important;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-field);
+  background-color: oklch(var(--color-primary) / 0.1);
+  transition: all 0.2s ease;
+}
+
+.fc-daygrid-more-link:hover {
+  background-color: oklch(var(--color-primary) / 0.2);
+  transform: scale(1.05);
+}
+
+/* === POPOVER === */
+.fc-popover {
+  background-color: oklch(var(--color-base-100)) !important;
+  border: var(--border) solid oklch(var(--color-base-300)) !important;
+  border-radius: var(--radius-box) !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.fc-popover-header {
+  background-color: oklch(var(--color-base-200)) !important;
+  color: oklch(var(--color-base-content)) !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 700;
+  border-radius: var(--radius-box) var(--radius-box) 0 0 !important;
+}
+
+.fc-popover-close {
+  color: oklch(var(--color-base-content)) !important;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.fc-popover-close:hover {
+  opacity: 1;
+}
+
+.fc-popover-body {
+  padding: 0.5rem !important;
+}
+
+/* === VUE LISTE === */
+.fc-list {
+  border: var(--border) solid oklch(var(--color-base-300)) !important;
+  border-radius: var(--radius-box);
+}
+
+.fc-list-event:hover td {
+  background-color: oklch(var(--color-base-200)) !important;
+}
+
+.fc-list-day-cushion {
+  background-color: oklch(var(--color-base-200)) !important;
+  color: oklch(var(--color-base-content)) !important;
+  font-weight: 700;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .fc-toolbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .fc-toolbar-title {
+    font-size: 1.25rem;
+  }
+  
+  .fc-toolbar-chunk {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .fc-button {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem;
+  }
+  
+  .fc-daygrid-day-frame {
+    min-height: 3rem;
+  }
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fc-event {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* === SCROLLBAR PERSONNALISÉE === */
+.fc-scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+  background: oklch(var(--color-base-200));
+  border-radius: var(--radius-field);
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+  background: oklch(var(--color-primary) / 0.5);
+  border-radius: var(--radius-field);
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+  background: oklch(var(--color-primary));
+}
