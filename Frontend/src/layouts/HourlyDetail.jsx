@@ -122,7 +122,7 @@ export default function HourlyDetail() {
 
       try {
         const res = await getHourlyByEvent(id);
-        
+        console.log('icicic')
         // Annuler le timeout si la requête aboutit
         clearTimeout(timeoutId);
         
