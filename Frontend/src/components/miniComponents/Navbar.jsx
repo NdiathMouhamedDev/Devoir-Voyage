@@ -24,12 +24,12 @@ export const Navbar = ({ links = [], className = "" }) => {
             <ul className="menu menu-horizontal px-1 gap-2">
               {links.map((link) => (
                 <li key={`${link.label}-${link.href}`}>
-                  <Link id={link.label}
-                    to={link.href} 
+                  <a id={link.label}
+                    href={link.href} 
                     className={`btn btn-ghost text-xl ${className}` }
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

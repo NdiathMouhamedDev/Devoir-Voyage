@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../layouts/UseAuth';
 import RegisterEvent from '../layouts/RegisterEvent';
 import AvatarMenu from '../components/miniComponents/AvatarMenu';
 import EventManagement from '../layouts/EventManagement';
 import { useNavigate } from 'react-router-dom';
 import DeconnexionBtn from '../components/miniComponents/DeconnexionBTN';
+import MinNav from '../components/miniComponents/MinNav';
 
 const Dashboard = () => {
     const { user, isAdmin, isAuthenticated, loading, logout } = useAuth();
     const [activeSection, setActiveSection] = useState('overview');
     const navigate = useNavigate();
+    useEffect(() => {
+        document.title = "Dashboard | Touba Events";
+      }, []);
 
+    // ✅ Afficher le loader uniquement pendant le chargement initial
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-base-200">
@@ -22,10 +27,10 @@ const Dashboard = () => {
         );
     }
 
+    // ✅ Vérifier l'authentification après le chargement
     if (!isAuthenticated()) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
-                
                 <div className="card w-full max-w-md bg-base-100 shadow-xl">
                     <div className="card-body text-center">
                         <div className="text-6xl mb-4">🔒</div>
@@ -47,6 +52,7 @@ const Dashboard = () => {
         );
     }
 
+    // ✅ Vérifier les droits admin après l'authentification
     if (!isAdmin()) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
@@ -61,7 +67,7 @@ const Dashboard = () => {
                             <span>Seuls les administrateurs peuvent accéder au dashboard.</span>
                         </div>
                         <div className="badge badge-outline badge-lg mt-2">
-                            Votre rôle : <strong className="ml-2">{user.role}</strong>
+                            Votre rôle : <strong className="ml-2">{user?.role || 'Non défini'}</strong>
                         </div>
                         <div className="card-actions justify-center mt-4 gap-2">
                             <button 
@@ -97,7 +103,7 @@ const Dashboard = () => {
                                     </svg>
                                 </div>
                                 <div className="stat-title">Événements</div>
-                                <div className="stat-value text-primary">24</div>
+                                <div className="stat-value text-primary">7</div>
                                 <div className="stat-desc">↗︎ 12% ce mois</div>
                             </div>
 
@@ -108,8 +114,8 @@ const Dashboard = () => {
                                     </svg>
                                 </div>
                                 <div className="stat-title">Participants</div>
-                                <div className="stat-value text-secondary">1,846</div>
-                                <div className="stat-desc">↗︎ 22% ce mois</div>
+                                <div className="stat-value text-secondary">??</div>
+                                <div className="stat-desc">↗︎ ??% ce mois</div>
                             </div>
 
                             <div className="stat bg-base-100 shadow-lg rounded-box border border-base-300">
@@ -119,7 +125,7 @@ const Dashboard = () => {
                                     </svg>
                                 </div>
                                 <div className="stat-title">Revenus</div>
-                                <div className="stat-value text-accent">45K €</div>
+                                <div className="stat-value text-accent">45K € <small className='text-xs'>amiine</small></div>
                                 <div className="stat-desc">↗︎ 18% ce mois</div>
                             </div>
 
@@ -130,7 +136,7 @@ const Dashboard = () => {
                                     </svg>
                                 </div>
                                 <div className="stat-title">Satisfaction</div>
-                                <div className="stat-value text-success">97%</div>
+                                <div className="stat-value text-success">97% <small className='text-xs'>amiine</small></div>
                                 <div className="stat-desc">↗︎ 3% ce mois</div>
                             </div>
                         </div>
@@ -193,7 +199,7 @@ const Dashboard = () => {
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    Activité récente
+                                    Activité récente (demo)
                                 </h2>
                                 <div className="space-y-3">
                                     {[
@@ -234,7 +240,7 @@ const Dashboard = () => {
                                     Dashboard Administrateur
                                 </h1>
                                 <p className="text-base-content/70 mt-2">
-                                    Bienvenue <span className="font-semibold text-primary">{user.name}</span> !
+                                    Bienvenue <span className="font-semibold text-primary">{user?.name}</span> !
                                 </p>
                             </div>
                             <div className="flex items-center gap-3">
@@ -291,6 +297,7 @@ const Dashboard = () => {
                     </div>
                 )}
             </div>
+            <MinNav/>
         </div>
     );
 };

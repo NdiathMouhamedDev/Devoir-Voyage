@@ -31,18 +31,18 @@ class PlanningNotification extends Notification
     
     switch ($this->type) {
         case 'inscription':
-            return "✅ Bonjour {$userName}, votre inscription est confirmée !\n"
+            return "AS SALAMU ANLEYKUM WA RAHMATULLAH \n *TOUBA EVENTS NOTIFICATION* \n ✅ Bonjour {$userName}, votre inscription est confirmée !\n"
                  . "📅 Planning: {$this->hourly->title}\n"
                  . "🕒 Départ prévu: {$this->hourly->startup}\n"
                  . "📍 Lieu: {$this->hourly->place}";
 
         case 'reminder_1d':
-            return "⏰ Rappel : demain vous avez le planning {$this->hourly->title}.\n"
+            return "AS SALAMU ANLEYKUM WA RAHMATULLAH \n *TOUBA EVENTS NOTIFICATION* \n⏰ Rappel : demain vous avez le planning {$this->hourly->title}.\n"
                  . "🕒 Départ: {$this->hourly->startup}\n"
                  . "📍 Lieu: {$this->hourly->place}";
 
         case 'reminder_30m':
-            return "⚡ Dernier rappel : dans 30 minutes commence {$this->hourly->title}.\n"
+            return "AS SALAMU ANLEYKUM WA RAHMATULLAH \n *TOUBA EVENTS NOTIFICATION* \n⚡ Dernier rappel : dans 30 minutes commence {$this->hourly->title}.\n"
                  . "Soyez prêt ! 🚌";
 
         default:

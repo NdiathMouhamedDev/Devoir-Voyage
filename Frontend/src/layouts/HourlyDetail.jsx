@@ -13,6 +13,7 @@ export default function HourlyDetail() {
   const [subscribedHourlies, setSubscribedHourlies] = useState({});
   const [registeredHourlies, setRegisteredHourlies] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -60,79 +61,228 @@ export default function HourlyDetail() {
       return;
     }
 
-    if (!user?.email_verified_at) {
-      try {
-        const res = await api.post("/send-verification");
-        toast.info(res.data.message);
-      } catch (err) {
-        console.error("Erreur envoi vérification email:", err);
-        toast.error("Erreur lors de l'envoi de l'email de vérification");
+    // ✅ Vérifier l'email UNIQUEMENT si pas encore abonné
+    if (!subscribedHourlies[hourlyItem.id]) {
+      if (!user?.email_verified_at) {
+        // Premier clic : envoyer email de vérification
+        try {
+          const res = await api.post("/send-verification");
+          toast.info(res.data.message || "Un email de vérification a été envoyé. Veuillez vérifier votre boîte mail.");
+        } catch (err) {
+          console.error("Erreur envoi vérification email:", err);
+          toast.error("Erreur lors de l'envoi de l'email de vérification");
+        }
+        return; // ⚠️ Arrêter ici pour le premier clic
       }
-      return;
-    }
 
-    try {
-      await api.post(`/hourlies/${hourlyItem.id}/subscribe`);
+      // Deuxième clic (après vérification) : activer notifications
+      try {
+        await api.post(`/hourlies/${hourlyItem.id}/subscribe`);
 
-      const channel = echo.channel(`hourly.${hourlyItem.id}`);
-      
-      channel.listen('.HourlyUpdated', (event) => {
-        console.log('Notification reçue:', event);
+        const channel = echo.channel(`hourly.${hourlyItem.id}`);
         
-        toast.success(event.message, {
-          duration: 5000,
-          position: 'top-right',
+        channel.listen('.HourlyUpdated', (event) => {
+          console.log('Notification reçue:', event);
+          
+          toast.success(event.message, {
+            duration: 5000,
+            position: 'top-right',
+          });
         });
-      });
-      
-      setSubscribedHourlies(prev => ({
-        ...prev,
-        [hourlyItem.id]: true
-      }));
+        
+        setSubscribedHourlies(prev => ({
+          ...prev,
+          [hourlyItem.id]: true
+        }));
 
-      toast.success(`Vous êtes maintenant abonné aux notifications pour "${hourlyItem.title}"`);
-    } catch (error) {
-      console.error("Erreur lors de l'abonnement:", error);
-      toast.error("Erreur lors de l'activation des notifications");
+        toast.success(`Notifications activées pour "${hourlyItem.title}"`);
+      } catch (error) {
+        console.error("Erreur lors de l'abonnement:", error);
+        toast.error("Erreur lors de l'activation des notifications");
+      }
     }
   };
 
   useEffect(() => {
-    setLoading(true);
-    
-    getHourlyByEvent(id).then(async (res) => {
-      if (!res) {
+    let isMounted = true;
+    let timeoutId;
+
+    const fetchHourly = async () => {
+      setLoading(true);
+      setError(null);
+      
+      // ✅ Définir un timeout de 10 secondes
+      timeoutId = setTimeout(() => {
+        if (isMounted && loading) {
+          setLoading(false);
+          setError("timeout");
+          console.warn("Timeout: Le chargement a pris trop de temps");
+        }
+      }, 10000); // 10 secondes
+
+      try {
+        const res = await getHourlyByEvent(id);
+        
+        // Annuler le timeout si la requête aboutit
+        clearTimeout(timeoutId);
+        
+        if (!isMounted) return;
+
+        if (!res) {
+          setHourly([]);
+          setError("no_data");
+          setLoading(false);
+          return;
+        }
+        
+        const data = res.data ?? res;
+        const hourliesData = Array.isArray(data) ? data : [data];
+        
+        // ✅ Vérifier si le tableau est vide
+        if (hourliesData.length === 0 || !hourliesData[0]) {
+          setHourly([]);
+          setError("empty");
+          setLoading(false);
+          return;
+        }
+        
+        setHourly(hourliesData);
+        
+        // ✅ Vérifier les inscriptions après avoir chargé les horaires
+        await checkRegistrations(hourliesData);
+        
         setLoading(false);
-        return;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (!isMounted) return;
+        
+        console.error("Erreur lors du chargement des horaires:", err);
+        setError("error");
+        setHourly([]);
+        setLoading(false);
       }
-      
-      const data = res.data ?? res;
-      const hourliesData = Array.isArray(data) ? data : [data];
-      setHourly(hourliesData);
-      
-      // ✅ Vérifier les inscriptions après avoir chargé les horaires
-      await checkRegistrations(hourliesData);
-      
-      setLoading(false);
-    });
+    };
+
+    fetchHourly();
 
     return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      
       if (hourly) {
         hourly.forEach(h => {
           echo.leaveChannel(`hourly.${h.id}`);
         });
       }
     };
-  }, [id, user]); // ✅ Ajouter user comme dépendance
+  }, [id, user]);
 
+  // ✅ État de chargement
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <span className="loading loading-spinner loading-lg"></span>
+        <p className="text-base-content/60">Chargement des horaires...</p>
       </div>
     );
   }
 
+  // ✅ Gestion des erreurs et horaires vides
+  if (error === "timeout") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <div className="alert alert-warning max-w-md shadow-lg">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="stroke-current flex-shrink-0 h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <div>
+            <h3 className="font-bold">Temps de chargement dépassé</h3>
+            <p className="text-sm">Le serveur met trop de temps à répondre. Veuillez réessayer.</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="btn btn-primary"
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
+
+  if (error === "error") {
+    //il faut le  gerer coté backend d'abords
+    // return (
+    //   <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
+    //     <div className="card bg-base-100 shadow-xl max-w-md">
+    //       <div className="card-body items-center text-center">
+    //         <svg
+    //           xmlns="http://www.w3.org/2000/svg"
+    //           className="h-24 w-24 text-base-content/20 mb-4"
+    //           fill="none"
+    //           viewBox="0 0 24 24"
+    //           stroke="currentColor"
+    //         >
+    //           <path
+    //             strokeLinecap="round"
+    //             strokeLinejoin="round"
+    //             strokeWidth={2}
+    //             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+    //           />
+    //         </svg>
+    //         <h2 className="card-title">Aucun Planning disponible pour cette Evenements</h2>
+    //         <p className="text-base-content/70">
+    //           Les plannings apparaîtront ici une fois créés.
+    //         </p>
+    //       </div>
+    //     </div>
+    //   </div>
+    // );
+  }
+
+  if (!hourly || hourly.length === 0 || error === "empty" || error === "no_data") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <div className="alert alert-info max-w-md shadow-lg">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="stroke-current flex-shrink-0 w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div>
+            <h3 className="font-bold">Aucun horaire disponible</h3>
+            <p className="text-sm">Il n'y a pas d'horaire pour cet événement.</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => navigate(-1)} 
+          className="btn btn-ghost"
+        >
+          ← Retour
+        </button>
+      </div>
+    );
+  }
+
+  // ✅ Affichage normal des horaires
   return (
     <div className="space-y-6">
       {hourly.map((h) => {
@@ -154,6 +304,7 @@ export default function HourlyDetail() {
 
         const isRegistered = registeredHourlies[h.id] || false;
         const isSubscribed = subscribedHourlies[h.id] || false;
+        const emailVerified = user?.email_verified_at;
 
         return (
           <div key={h.id || `hourly-${Math.random()}`} className="card bg-base-100 shadow-xl">
@@ -299,9 +450,11 @@ export default function HourlyDetail() {
                     disabled={!isRegistered || isSubscribed}
                     className={`btn w-full gap-2 ${
                       isSubscribed 
-                        ? 'btn-success' 
-                        : isRegistered 
+                        ? 'btn-success btn-disabled' 
+                        : isRegistered && emailVerified
                         ? 'btn-accent' 
+                        : isRegistered && !emailVerified
+                        ? 'btn-warning'
                         : 'btn-disabled'
                     }`}
                   >
@@ -321,7 +474,25 @@ export default function HourlyDetail() {
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        Notifications activées
+                        Notifications activées ✓
+                      </>
+                    ) : !emailVerified && isRegistered ? (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                        Vérifier mon email
                       </>
                     ) : (
                       <>
@@ -346,7 +517,7 @@ export default function HourlyDetail() {
                     )}
                   </button>
 
-                  {/* Indication visuelle */}
+                  {/* Alertes contextuelles */}
                   {!isRegistered && (
                     <div className="alert alert-info shadow-sm">
                       <svg
@@ -366,7 +537,7 @@ export default function HourlyDetail() {
                     </div>
                   )}
 
-                  {isRegistered && !isSubscribed && (
+                  {isRegistered && !emailVerified && !isSubscribed && (
                     <div className="alert alert-warning shadow-sm">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -378,10 +549,29 @@ export default function HourlyDetail() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth="2"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                         />
                       </svg>
-                      <span className="text-sm">Activez les notifications pour être alerté</span>
+                      <span className="text-sm">Cliquez sur le bouton pour recevoir un email de vérification</span>
+                    </div>
+                  )}
+
+                  {isRegistered && emailVerified && !isSubscribed && (
+                    <div className="alert alert-success shadow-sm">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="stroke-current flex-shrink-0 w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="text-sm">Email vérifié ! Cliquez pour activer les notifications</span>
                     </div>
                   )}
 

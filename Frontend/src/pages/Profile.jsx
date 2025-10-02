@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { storageUrl } from '../utils/url';
 import DeconnexionBTN from '../components/miniComponents/DeconnexionBTN';
+import MinNav from '../components/miniComponents/MinNav';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('info');
 
   useEffect(() => {
+    document.title = "Debug | Touba Events";
     loadProfile();
   }, []);
 
@@ -534,6 +536,7 @@ export default function Profile() {
           </div>
         )}
       </div>
+      <MinNav/>
     </div>
   );
 }

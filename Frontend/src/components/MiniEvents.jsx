@@ -25,12 +25,12 @@ export default function MiniEvents() {
     loadEvents();
   }, []);
 
-  const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('fr-FR', { 
-      day: 'numeric', 
-      month: 'short',
-      year: 'numeric'
-    });
+  // const formatDate = (dateString) =>
+  //   new Date(dateString).toLocaleDateString('fr-FR', { 
+  //     day: 'numeric', 
+  //     month: 'short',
+  //     year: 'numeric'
+  //   });
 
   if (loading) {
     return (
@@ -77,7 +77,7 @@ export default function MiniEvents() {
       <div className="container mx-auto px-4">
         {/* Header de la section */}
         <div className="text-center mb-12">
-          <div className="badge badge-primary badge-lg mb-4">Événements</div>
+          <div className="badge mt-20 badge-primary badge-lg mb-4">Événements</div>
           <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-4">
             Découvrez nos prochains événements
           </h2>
@@ -121,13 +121,6 @@ export default function MiniEvents() {
                       </svg>
                     </div>
                   )}
-                  
-                  {/* Badge catégorie en overlay */}
-                  {event.category && (
-                    <div className="absolute top-3 right-3">
-                      <div className="badge badge-primary">{event.category}</div>
-                    </div>
-                  )}
                 </figure>
 
                 <div className="card-body">
@@ -153,7 +146,7 @@ export default function MiniEvents() {
                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                       </svg>
-                      {formatDate(event.date || event.start_at)}
+                      {(event.start_at)}
                     </div>
                     
                     {event.location && (

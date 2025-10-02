@@ -1,6 +1,6 @@
 export default function MainHome() {
   return (
-    <section id="accueil" className="min-h-screen relative overflow-hidden">
+    <section id="accueil" className="min-h-screen relative -top-20 overflow-hidden">
       {/* Fond dégradé */}
       <div className="absolute inset-0 bg-gradient-to-br from-secondary via-primary to-accent"></div>
       
@@ -8,7 +8,7 @@ export default function MainHome() {
       <div className="absolute inset-0 bg-base-300/20"></div>
       
       {/* Contenu principal */}
-      <div className="relative h-screen flex items-center justify-center px-4">
+      <div className="relative h-screen mt-5 flex items-center justify-center px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Texte hero */}
@@ -57,14 +57,14 @@ export default function MainHome() {
                 <div className="space-y-4">
                   <div className="card bg-base-100 shadow-xl overflow-hidden hover:scale-105 transition-transform duration-300">
                     <img
-                      src="https://img.daisyui.com/images/stock/daisyui-hat-1.webp"
+                      src="/public/pictures/Accueil_cn8isdcn8isdcn8i.png"
                       alt="Événement 1"
                       className="w-full h-48 object-cover"
                     />
                   </div>
                   <div className="card bg-base-100 shadow-xl overflow-hidden hover:scale-105 transition-transform duration-300">
                     <img
-                      src="https://img.daisyui.com/images/stock/daisyui-hat-2.webp"
+                      src="/public/pictures/Gemini_Generated_Image_4wius84wius84wiu.png"
                       alt="Événement 2"
                       className="w-full h-64 object-cover"
                     />
@@ -73,14 +73,14 @@ export default function MainHome() {
                 <div className="space-y-4 mt-8">
                   <div className="card bg-base-100 shadow-xl overflow-hidden hover:scale-105 transition-transform duration-300">
                     <img
-                      src="https://img.daisyui.com/images/stock/daisyui-hat-3.webp"
+                      src="/public/pictures/Accueil_ij3djnij3djnij3d.png"
                       alt="Événement 3"
                       className="w-full h-64 object-cover"
                     />
                   </div>
                   <div className="card bg-base-100 shadow-xl overflow-hidden hover:scale-105 transition-transform duration-300">
                     <img
-                      src="https://img.daisyui.com/images/stock/daisyui-hat-4.webp"
+                      src="/public/pictures/Accueil_xlh6y8xlh6y8xlh6.png"
                       alt="Événement 4"
                       className="w-full h-48 object-cover"
                     />

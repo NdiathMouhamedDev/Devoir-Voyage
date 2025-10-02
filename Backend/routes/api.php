@@ -133,7 +133,6 @@ Route::post('/send-verification', function (Request $request) {
 })->middleware('auth:sanctum')->name('verification.custom-send');
 
 // 📌 Vérification de l'email (lien cliqué dans l'email reçu)
-
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) {
     // middleware 'signed' sera appliqué depuis l'enregistrement ci-dessous
     Log::info('Email verify route hit', ['id' => $id, 'hash' => $hash, 'url' => $request->fullUrl()]);

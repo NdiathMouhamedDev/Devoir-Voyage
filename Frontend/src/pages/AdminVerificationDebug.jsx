@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Bug, Eye, Copy, CheckCircle } from 'lucide-react';
+import MinNav from '../components/miniComponents/MinNav';
 
 const AdminVerificationDebug = () => {
   const [testUrl, setTestUrl] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    document.title = "Debug | Touba Events";
+  }, []);
 
   const testVerificationUrl = async () => {
     if (!testUrl) {
@@ -244,6 +249,7 @@ const AdminVerificationDebug = () => {
           </div>
         </div>
       </div>
+      <MinNav/>
     </div>
   );
 };

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import { useAuth } from "../layouts/UseAuth"; // ✅ Importer useAuth
+import MinNav from "../components/miniComponents/MinNav";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -8,7 +9,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ Utiliser la fonction login du contexte
 
+
+  useEffect(() => {
+      document.title = "Login | Touba Events";
+    }, []);
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     // Effacer l'erreur quand l'utilisateur tape
@@ -21,29 +27,30 @@ export default function Login() {
     setError("");
 
     try {
-      
-      const res = await api.post("/login", form);
-      const { token, user } = res.data;
+      // ✅ UTILISER la fonction login du contexte au lieu de l'API directement
+      const result = await login(form.email, form.password);
 
-      // Sauvegarder token + id
-      localStorage.setItem("token", token);
-      localStorage.setItem("user_id", user.id);
-      localStorage.setItem("user", JSON.stringify(user));
-      
-      console.log("Connexion réussie:", user);
-      
-      // Redirection selon le rôle
-      if (user.role === 'admin') {
-        navigate("/dashboard");
+      if (result.success) {
+        console.log("✅ Connexion réussie:", result.user);
+        
+        // ✅ Redirection selon le rôle
+        // Petit délai pour laisser le contexte se mettre à jour
+        setTimeout(() => {
+          if (result.user.role === 'admin') {
+            console.log("🎯 Redirection vers /dashboard");
+            navigate("/dashboard");
+          } else {
+            console.log("🏠 Redirection vers /events");
+            navigate("/events");
+          }
+        }, 100);
       } else {
-        navigate("/events");
+        // ✅ Gérer l'erreur retournée par la fonction login
+        setError(result.message || "Email ou mot de passe incorrect. Veuillez réessayer.");
       }
     } catch (err) {
-      console.error("Erreur de connexion", err);
-      setError(
-        err.response?.data?.message || 
-        "Email ou mot de passe incorrect. Veuillez réessayer."
-      );
+      console.error("❌ Erreur de connexion", err);
+      setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -191,14 +198,6 @@ export default function Login() {
                 </label>
               </div>
 
-              {/* Remember me */}
-              {/* <div className="form-control">
-                <label className="label cursor-pointer justify-start gap-2">
-                  <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" />
-                  <span className="label-text">Se souvenir de moi</span>
-                </label>
-              </div> */}
-
               {/* Bouton de connexion */}
               <button 
                 type="submit" 
@@ -272,6 +271,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <MinNav/>
     </div>
   );
 }

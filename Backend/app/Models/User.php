@@ -25,7 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
-        'email_verified_at', // Ajouté pour permettre la mise à jour manuelle
+        'email_verified_at',
         'phone_number',
         'address',
     ];

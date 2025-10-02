@@ -1,35 +1,65 @@
 import { useState, useEffect } from "react";
 import api from "../../api";
-import { useEvents } from "../../contexts/EventsContext";
 
 export default function InterestToggleButton({ 
   eventId, 
   initialInterested = false, 
   initialCount = 0 
 }) {
-  // ✅ Utiliser le contexte global
-  const { updateEventInterest, getEventInterest } = useEvents();
-  
-  // ✅ Vérifier d'abord le state global, sinon utiliser les props
-  const globalState = getEventInterest(eventId);
-  const [isInterested, setIsInterested] = useState(
-    globalState?.is_interested ?? initialInterested
-  );
-  const [interestedCount, setInterestedCount] = useState(
-    globalState?.interested_count ?? initialCount
-  );
+  const [isInterested, setIsInterested] = useState(initialInterested);
+  const [interestedCount, setInterestedCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
   
   const isAuthenticated = !!localStorage.getItem('token');
 
-  // ✅ Synchroniser avec le state global
+  // ✅ Charger le statut depuis l'API au montage ET à chaque changement d'eventId
   useEffect(() => {
-    const globalState = getEventInterest(eventId);
-    if (globalState) {
-      setIsInterested(globalState.is_interested);
-      setInterestedCount(globalState.interested_count);
-    }
-  }, [eventId, getEventInterest, globalState]);
+    if (!eventId) return;
+
+    // Réinitialiser l'état aux valeurs initiales pendant le chargement
+    setIsInterested(initialInterested);
+    setInterestedCount(initialCount);
+    setLoading(true);
+
+    const fetchInterestStatus = async () => {
+      try {
+        const response = await api.get(`/events/${eventId}/interest-status`);
+        setIsInterested(response.data.is_interested);
+        setInterestedCount(response.data.interested_count);
+      } catch (error) {
+        console.error("Erreur lors du chargement du statut d'intérêt:", error);
+        // En cas d'erreur, on garde les valeurs initiales
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInterestStatus();
+  }, [eventId, initialInterested, initialCount]);
+
+  // ✅ Écouter les changements depuis d'autres instances (via window.postMessage ou custom event)
+  useEffect(() => {
+    const handleInterestChange = (event) => {
+      // Ne recharger QUE si c'est un événement venant d'une AUTRE instance
+      // On utilise un timestamp pour identifier notre propre action
+      if (event.detail?.eventId === eventId && event.detail?.timestamp !== window._lastInterestToggle) {
+        // Recharger le statut depuis l'API seulement pour les autres instances
+        const fetchUpdatedStatus = async () => {
+          try {
+            const response = await api.get(`/events/${eventId}/interest-status`);
+            setIsInterested(response.data.is_interested);
+            setInterestedCount(response.data.interested_count);
+          } catch (error) {
+            console.error("Erreur lors du rechargement du statut:", error);
+          }
+        };
+        fetchUpdatedStatus();
+      }
+    };
+
+    window.addEventListener('interestChanged', handleInterestChange);
+    return () => window.removeEventListener('interestChanged', handleInterestChange);
+  }, [eventId]);
 
   const handleToggleInterest = async () => {
     if (!eventId) {
@@ -53,15 +83,17 @@ export default function InterestToggleButton({
         response = await api.post(`/events/${eventId}/interested`);
       }
       
-      const newIsInterested = response.data.is_interested;
-      const newCount = response.data.interested_count;
+      // ✅ Mettre à jour l'état local immédiatement
+      setIsInterested(response.data.is_interested);
+      setInterestedCount(response.data.interested_count);
 
-      // ✅ Mettre à jour l'état local
-      setIsInterested(newIsInterested);
-      setInterestedCount(newCount);
-
-      // ✅ Mettre à jour le state global (synchronise tous les composants)
-      updateEventInterest(eventId, newIsInterested, newCount);
+      // ✅ Notifier les autres instances avec un timestamp unique
+      const timestamp = Date.now();
+      window._lastInterestToggle = timestamp; // Stocker pour éviter de se recharger soi-même
+      
+      window.dispatchEvent(new CustomEvent('interestChanged', { 
+        detail: { eventId, timestamp } 
+      }));
       
     } catch (error) {
       console.error("Erreur lors du toggle d'intérêt:", error);

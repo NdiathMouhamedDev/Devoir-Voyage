@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import api from '../api';
+import MinNav from '../components/miniComponents/MinNav';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,10 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+      document.title = "Register | Touba Events";
+    }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -371,6 +376,7 @@ export default function Register() {
           </div>
         </div>
       </div>
+      <MinNav/>
     </div>
   );
 }
