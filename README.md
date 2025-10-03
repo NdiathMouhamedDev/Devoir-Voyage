@@ -17,8 +17,8 @@ Application web pour planifier et gérer le voyage de Touba : consultation des h
 **Backend**
 - Laravel 12
 - Laravel Sanctum + Breeze API
-- SQLite / MySQL / PostgreSQL
-- Notifications: Mail, Database, Twilio (WhatsApp)
+- SQLite
+- Notifications: Mail, Database, Ultramsg (WhatsApp)
 
 **Frontend**
 - React + Vite
@@ -75,9 +75,9 @@ MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=your-email@gmail.com
 
 # Twilio (WhatsApp)
-TWILIO_SID=your-twilio-sid
-TWILIO_TOKEN=your-twilio-token
-TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+Ultramsg_SID=your-twilio-sid
+Ultramsg_TOKEN=your-twilio-token
+ULtramsg_WHATSAPP_FROM=whatsapp:+14155238886
 
 # Sanctum
 SANCTUM_STATEFUL_DOMAINS=localhost:5173
@@ -143,7 +143,7 @@ Le système envoie 3 notifications par inscription:
 2. **1 jour avant** - Rappel planifié
 3. **30 minutes avant** - Dernier rappel
 
-**Canaux:** Email, Database, WhatsApp (Twilio)
+**Canaux:** Email, Database, WhatsApp (Ultramsg)
 
 ## 🐛 Problèmes Courants
 
