@@ -7,7 +7,7 @@ Application web pour planifier et gérer le voyage de Touba : consultation des h
 - Gestion des événements et plannings (hourlies)
 - Inscription des utilisateurs aux horaires
 - Calendrier interactif (FullCalendar)
-- Notifications par email et WhatsApp (Twilio)
+- Notifications par email et WhatsApp (Ultramsg)
 - Authentification sécurisée (Laravel Sanctum)
 - Vérification d'email pour notifications en temps réel
 - Interface moderne avec Tailwind CSS + daisyUI
